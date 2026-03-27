@@ -5,6 +5,7 @@ import exceptions.DuplicateEmailException;
 import exceptions.InvalidEmailException;
 import exceptions.InvalidRoleException;
 import models.dto.UserDTO;
+import models.entity.User;
 import utils.Config;
 import utils.HashUtil;
 import utils.InputMethod;
@@ -27,7 +28,10 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     public void findAll() {
-
+        List<UserDTO> userDTOList = userDAO.findAll();
+        for (UserDTO userDTO : userDTOList) {
+            System.out.println(userDTO);
+        }
     }
 
     @Override
@@ -84,11 +88,6 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public void updateUser() {
-
-    }
-
-    @Override
     public void deleteUser() {
         int userId = InputMethod.getIntegerPositive("Nhập ID người dùng: ");
         if (Config.getUser().getId() == userId) {
@@ -105,7 +104,32 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     public void grantRole() {
-
+        int id = InputMethod.getIntegerPositive("Nhập ID người dùng: ");
+        UserDTO userDTO = userDAO.findById(id);
+        // Kiểm tra người dùng tồn tại
+        if (userDTO == null) {
+            System.out.printf("%s%s%s\n", Config.RED, "Người dùng không tồn tại", Config.RESET);
+            return;
+        }
+        // Nhập role và kiểm tra
+        String role;
+        while (true) {
+            System.out.print("Nhập vai trò (Customer/ Staff/ Admin): ");
+            role = new Scanner(System.in).nextLine();
+            try {
+                Validate.validateRole(role);
+                break;
+            } catch (InvalidRoleException exception) {
+                System.out.printf("%s%s%s\n", Config.RED, exception.getMessage(), Config.RESET);
+            }
+        }
+        // Gọi DB lưu dữ liệu
+        boolean result = userDAO.grantRole(id, role);
+        if (result) {
+            System.out.printf("%s%s%s\n", Config.GREEN, "Cấp quyền thành công", Config.RESET);
+        } else {
+            System.out.printf("%s%s%s\n", Config.RED, "Cấp quyền thất bại", Config.RESET);
+        }
     }
 
     @Override

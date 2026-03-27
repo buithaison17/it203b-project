@@ -15,4 +15,8 @@ public interface UserDAO {
     public boolean changePassword(int id, String newPassword);
 
     public boolean deleteUser(int id);
+
+    public UserDTO findById(int id);
+
+    public boolean grantRole(int id, String role);
 }

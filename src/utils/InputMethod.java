@@ -41,6 +41,38 @@ public class InputMethod {
         }
     }
 
+    // Nhập chuỗi tối thiểu 3 ký tự
+    public static String getStringAtLeastThreeCharacters(String title) {
+        while (true) {
+            System.out.print(title);
+            String input = sc.nextLine();
+            if (input.isBlank()) {
+                System.out.println("Không được bỏ trống");
+            } else if (input.length() < 3) {
+                System.out.println("Tối thiểu 3 ký tự");
+            } else {
+                return input;
+            }
+        }
+    }
+
+    public static String getStringAtLeastThreeCharacters(String title, String oldValue) {
+        while (true) {
+            System.out.print(title);
+            String input = sc.nextLine();
+            if (oldValue != null && input.isBlank()) {
+                return oldValue;
+            }
+            if (input.isBlank()) {
+                System.out.println("Không được bỏ trống");
+            } else if (input.length() < 3) {
+                System.out.println("Tối thiểu 3 ký tự");
+            } else {
+                return input;
+            }
+        }
+    }
+
     // Nhập số thực
     public static double getDoubleInteger(String title) {
         while (true) {

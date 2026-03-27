@@ -1,10 +1,13 @@
 package presentation;
 
 import services.AdminServiceImpl;
+import services.CategoryService;
+import services.CategoryServiceImpl;
 import utils.InputMethod;
 
 public class AdminMenu {
-    private AdminServiceImpl adminService = AdminServiceImpl.getInstance();
+    private final AdminServiceImpl adminService = AdminServiceImpl.getInstance();
+    private final CategoryServiceImpl categoryService = CategoryServiceImpl.getInstance();
 
     public void showMenu() {
         int choice;
@@ -13,16 +16,21 @@ public class AdminMenu {
             System.out.println("2. Thêm tài khoản");
             System.out.println("3. Xóa tài khoản");
             System.out.println("4. Phân quyền");
-            System.out.println("5. Xem danh sách máy");
-            System.out.println("7. Thêm máy tính");
-            System.out.println("8. Sửa máy tính");
-            System.out.println("9. Xóa máy tính");
-            System.out.println("10. Xem danh sách món ăn");
-            System.out.println("11. Thêm món ăn");
-            System.out.println("12. Xóa món ăn");
-            System.out.println("13. Sửa món ăn");
-            System.out.println("14. Xem toàn bộ đơn hàng của hệ thống");
-            System.out.println("15. Báo cáo thống kê");
+            System.out.println("5. Xem danh sách khu vực");
+            System.out.println("6. Thêm khu vực");
+            System.out.println("7. Xóa khu vực");
+            System.out.println("8. Cập nhật khu vực");
+            System.out.println("9. Xem danh sách máy");
+            System.out.println("10. Thêm máy tính");
+            System.out.println("11. Sửa máy tính");
+            System.out.println("12. Xóa máy tính");
+            System.out.println("13. Xem danh sách món ăn");
+            System.out.println("14. Thêm món ăn");
+            System.out.println("15. Xóa món ăn");
+            System.out.println("16. Cập nhật thông tin món ăn");
+            System.out.println("17. Cập nhật tồn kho");
+            System.out.println("18. Xem toàn bộ đơn hàng của hệ thống");
+            System.out.println("19. Báo cáo thống kê");
             System.out.println("0. Thoát");
             choice = InputMethod.getIntegerPositive("Nhập chức năng: ");
             switch (choice) {
@@ -37,6 +45,18 @@ public class AdminMenu {
                     break;
                 case 4:
                     adminService.grantRole();
+                    break;
+                case 5:
+                    categoryService.findAll();
+                    break;
+                case 6:
+                    categoryService.addCategory();
+                    break;
+                case 7:
+                    categoryService.deleteCategory();
+                    break;
+                case 8:
+                    categoryService.updateCategory();
                     break;
                 case 15:
                     adminService.generateUserReport();

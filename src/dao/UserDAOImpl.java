@@ -120,6 +120,7 @@ public class UserDAOImpl implements UserDAO {
         }
     }
 
+    // Xóa người dùng
     @Override
     public boolean deleteUser(int id) {
         String deleteUserSql = "delete from users where user_id = ?";
@@ -131,5 +132,37 @@ public class UserDAOImpl implements UserDAO {
             System.out.printf("%s%s%s\n", Config.RED, "Đã xảy ra lỗi vui lòng thử lại", Config.RESET);
             return false;
         }
+    }
+
+    // Tìm kiếm bằng ID
+    @Override
+    public UserDTO findById(int id) {
+        String findUserSql = "select user_id, full_name, email, role, balance, created_at from users where user_id = ?";
+        UserDTO userDTO = null;
+        try (Connection connection = new DatabaseConnection().getConnection();
+             PreparedStatement stmFindUser = connection.prepareStatement(findUserSql)) {
+            stmFindUser.setInt(1, id);
+            ResultSet resultSet = stmFindUser.executeQuery();
+            if (resultSet.next()) {
+                userDTO = maptoUserDTO(resultSet);
+            }
+        } catch (SQLException e) {
+            System.out.printf("%s%s%s\n", Config.RED, "Đã xảy ra lỗi vui lòng thử lại", Config.RESET);
+        }
+        return userDTO;
+    }
+
+    @Override
+    public boolean grantRole(int id, String role) {
+        String grantRoleSql = "update users set role = ? where user_id = ?";
+        try (Connection connection = new DatabaseConnection().getConnection();
+             PreparedStatement stmGrantRole = connection.prepareStatement(grantRoleSql)) {
+            stmGrantRole.setString(1, role);
+            stmGrantRole.setInt(2, id);
+            return stmGrantRole.executeUpdate() > 0;
+        } catch (SQLException exception) {
+            System.out.printf("%s%s%s\n", Config.RED, "Đã xảy ra lỗi vui lòng thử lại", Config.RESET);
+        }
+        return false;
     }
 }
