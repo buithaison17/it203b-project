@@ -1,20 +1,21 @@
 package services;
 
-import entity.User;
+import models.dto.UserDTO;
+import models.entity.User;
 
 import java.util.List;
 
 public interface AdminService {
 
-    public List<User> findAll();
+    public void findAll();
 
-    public void saveUser(String fullName, String email, String password);
+    public void saveUser();
 
-    public void updateUser(User user);
+    public void updateUser();
 
-    public void deleteUser(User user);
+    public void deleteUser();
 
-    public void grantRole(User user, String role);
+    public void grantRole();
 
-    public String generateUserReport();
+    public void generateUserReport();
 }

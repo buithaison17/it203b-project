@@ -1,20 +1,10 @@
 package presentation;
 
-import entity.User;
 import services.AdminServiceImpl;
 import utils.InputMethod;
 
-import java.util.List;
-
 public class AdminMenu {
     private AdminServiceImpl adminService = AdminServiceImpl.getInstance();
-
-    public void viewAllUser() {
-        List<User> users = adminService.findAll();
-        for (User user : users) {
-            System.out.println(user);
-        }
-    }
 
     public void showMenu() {
         int choice;
@@ -37,7 +27,19 @@ public class AdminMenu {
             choice = InputMethod.getIntegerPositive("Nhập chức năng: ");
             switch (choice) {
                 case 1:
-                    viewAllUser();
+                    adminService.findAll();
+                    break;
+                case 2:
+                    adminService.saveUser();
+                    break;
+                case 3:
+                    adminService.deleteUser();
+                    break;
+                case 4:
+                    adminService.grantRole();
+                    break;
+                case 15:
+                    adminService.generateUserReport();
                     break;
             }
         } while (choice != 0);

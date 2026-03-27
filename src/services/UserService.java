@@ -1,7 +1,9 @@
 package services;
 
 public interface UserService {
-    public boolean register(String fullName, String email, String password);
+    public void register();
 
-    public boolean login(String email, String password);
+    public void login();
+
+    public boolean changePassword(String oldPassword, String newPassword);
 }

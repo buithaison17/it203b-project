@@ -1,6 +1,7 @@
 package dao;
 
-import entity.User;
+import models.dto.UserDTO;
+import models.entity.User;
 
 import java.util.List;
 
@@ -9,5 +10,9 @@ public interface UserDAO {
 
     public User findByEmail(String email);
 
-    public List<User> findAll();
+    public List<UserDTO> findAll();
+
+    public boolean changePassword(int id, String newPassword);
+
+    public boolean deleteUser(int id);
 }

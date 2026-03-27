@@ -1,7 +1,7 @@
 package dao;
 
-import at.favre.lib.crypto.bcrypt.BCrypt;
-import entity.User;
+import models.dto.UserDTO;
+import models.entity.User;
 import utils.Config;
 import utils.DatabaseConnection;
 
@@ -28,7 +28,7 @@ public class UserDAOImpl implements UserDAO {
     @Override
     public boolean saveUser(String fullName, String email, String password) {
         String saveUserSql = "insert into  users(full_name, email, password) values (?,?,?)";
-        try (Connection connection = DatabaseConnection.getInstance().getConnection(); PreparedStatement stmSaveUser = connection.prepareStatement(saveUserSql)) {
+        try (Connection connection = new DatabaseConnection().getConnection(); PreparedStatement stmSaveUser = connection.prepareStatement(saveUserSql)) {
             stmSaveUser.setString(1, fullName);
             stmSaveUser.setString(2, email);
             stmSaveUser.setString(3, password);
@@ -39,12 +39,28 @@ public class UserDAOImpl implements UserDAO {
         }
     }
 
+    public boolean saveUser(String fullname, String email, String password, String role, double balance) {
+        String saveUserSql = "insert into users(full_name, email, password, role, balance) values (?, ?, ?, ?, ?)";
+        try (Connection connection = new DatabaseConnection().getConnection();
+             PreparedStatement stmSaveUser = connection.prepareStatement(saveUserSql)) {
+            stmSaveUser.setString(1, fullname);
+            stmSaveUser.setString(2, email);
+            stmSaveUser.setString(3, password);
+            stmSaveUser.setString(4, role);
+            stmSaveUser.setDouble(5, balance);
+            return stmSaveUser.executeUpdate() > 0;
+        } catch (SQLException e) {
+            System.out.printf("%s%s%s\n", Config.RED, "Đã xảy ra lỗi vui lòng thử lại", Config.RESET);
+            return false;
+        }
+    }
+
     // Tìm kiếm bằng email
     @Override
     public User findByEmail(String email) {
         User user = null;
         String findUserSql = "select user_id, full_name, email, password, role, balance, created_at from users where email = ?";
-        try (Connection connection = DatabaseConnection.getInstance().getConnection(); PreparedStatement stmFindUser = connection.prepareStatement(findUserSql)) {
+        try (Connection connection = new DatabaseConnection().getConnection(); PreparedStatement stmFindUser = connection.prepareStatement(findUserSql)) {
             stmFindUser.setString(1, email);
             ResultSet resultSet = stmFindUser.executeQuery();
             if (resultSet.next()) {
@@ -54,33 +70,66 @@ public class UserDAOImpl implements UserDAO {
                 String role = resultSet.getString("role");
                 double balance = resultSet.getDouble("balance");
                 LocalDateTime createdAt = resultSet.getTimestamp("created_at").toLocalDateTime();
-                user = new User(userId, fullName, email, password, role, balance, createdAt);
-            }
-        } catch (SQLException e) {
-
-        }
-        return user;
-    }
-
-    private User mapToUser(ResultSet resultSet) throws SQLException {
-        return new User(resultSet.getInt("user_id"), resultSet.getString("full_name"), resultSet.getString("email"), resultSet.getString("password"), resultSet.getString("role"), resultSet.getDouble("balance"), resultSet.getTimestamp("created_at").toLocalDateTime());
-    }
-
-    // Lấy danh sách user
-    @Override
-    public List<User> findAll() {
-        List<User> users = new ArrayList<>();
-
-        String findAllSql = "select user_id, full_name, email, password, role, balance, created_at from users order by created_at desc";
-        try (Connection connection = DatabaseConnection.getInstance().getConnection(); PreparedStatement stmFindAll = connection.prepareStatement(findAllSql)) {
-            ResultSet resultSet = stmFindAll.executeQuery();
-            while (resultSet.next()) {
-                User user = mapToUser(resultSet);
-                users.add(user);
+                user = mapToUser(resultSet);
             }
         } catch (SQLException e) {
             System.out.printf("%s%s%s\n", Config.RED, "Đã xảy ra lỗi vui lòng thử lại", Config.RESET);
         }
-        return users;
+        return user;
+    }
+
+    // Chuyển ResultSet sang user
+    private User mapToUser(ResultSet resultSet) throws SQLException {
+        return new User(resultSet.getInt("user_id"), resultSet.getString("full_name"), resultSet.getString("email"), resultSet.getString("password"), resultSet.getString("role"), resultSet.getDouble("balance"), resultSet.getTimestamp("created_at").toLocalDateTime());
+    }
+
+    // Chuyển ResultSet sang UserDTO
+    private UserDTO maptoUserDTO(ResultSet resultSet) throws SQLException {
+        return new UserDTO(resultSet.getInt("user_id"), resultSet.getString("full_name"), resultSet.getString("email"), resultSet.getString("role"), resultSet.getDouble("balance"), resultSet.getTimestamp("created_at").toLocalDateTime());
+    }
+
+    // Lấy danh sách user
+    @Override
+    public List<UserDTO> findAll() {
+        List<UserDTO> userDTOS = new ArrayList<>();
+        String findAllSql = "select user_id, full_name, email, role, balance, created_at from users";
+        try (Connection connection = new DatabaseConnection().getConnection(); PreparedStatement stmFindAll = connection.prepareStatement(findAllSql)) {
+            ResultSet resultSet = stmFindAll.executeQuery();
+            while (resultSet.next()) {
+                UserDTO userDTO = maptoUserDTO(resultSet);
+                userDTOS.add(userDTO);
+            }
+        } catch (SQLException e) {
+            System.out.printf("%s%s%s\n", Config.RED, "Đã xảy ra lỗi vui lòng thử lại", Config.RESET);
+        }
+        return userDTOS;
+    }
+
+    // Đổi mật khẩu
+    @Override
+    public boolean changePassword(int userId, String newPassword) {
+        String changePasswordSql = "update users set password = ? where user_id = ?";
+        try (Connection connection = new DatabaseConnection().getConnection();
+             PreparedStatement stmChangePassword = connection.prepareStatement(changePasswordSql)) {
+            stmChangePassword.setString(1, newPassword);
+            stmChangePassword.setInt(2, userId);
+            return stmChangePassword.executeUpdate() > 0;
+        } catch (SQLException e) {
+            System.out.printf("%s%s%s\n", Config.RED, "Đã xảy ra lỗi vui lòng thủ lại", Config.RESET);
+            return false;
+        }
+    }
+
+    @Override
+    public boolean deleteUser(int id) {
+        String deleteUserSql = "delete from users where user_id = ?";
+        try (Connection connection = new DatabaseConnection().getConnection();
+             PreparedStatement stmDeleteUser = connection.prepareStatement(deleteUserSql)) {
+            stmDeleteUser.setInt(1, id);
+            return stmDeleteUser.executeUpdate() > 0;
+        } catch (SQLException e) {
+            System.out.printf("%s%s%s\n", Config.RED, "Đã xảy ra lỗi vui lòng thử lại", Config.RESET);
+            return false;
+        }
     }
 }

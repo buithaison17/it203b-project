@@ -1,6 +1,6 @@
 package utils;
 
-import entity.User;
+import models.entity.User;
 
 public class Config {
     // Reset

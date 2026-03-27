@@ -1,5 +1,8 @@
 package utils;
 
+import dao.UserDAOImpl;
+import services.AdminServiceImpl;
+
 import java.util.Scanner;
 
 public class InputMethod {
