@@ -6,10 +6,7 @@ import exceptions.InvalidEmailException;
 import exceptions.InvalidRoleException;
 import models.dto.UserDTO;
 import models.entity.User;
-import utils.Config;
-import utils.HashUtil;
-import utils.InputMethod;
-import utils.Validate;
+import utils.*;
 
 import java.util.List;
 import java.util.Scanner;
@@ -94,6 +91,10 @@ public class AdminServiceImpl implements AdminService {
             System.out.printf("%s%s%s\n", Config.RED, "Không thể xóa tài khoản đang đăng nhập", Config.RESET);
             return;
         }
+        if (!AcceptChoice.accpect("Xác nhận xóa tài khoản: ")) {
+            System.out.printf("%s%s%s\n", Config.YELLOW, "Không xóa tài khoản", Config.RESET);
+            return;
+        }
         boolean result = userDAO.deleteUser(userId);
         if (result) {
             System.out.printf("%s%s%s\n", Config.GREEN, "Xóa tài khoản thành công", Config.RESET);
@@ -122,6 +123,10 @@ public class AdminServiceImpl implements AdminService {
             } catch (InvalidRoleException exception) {
                 System.out.printf("%s%s%s\n", Config.RED, exception.getMessage(), Config.RESET);
             }
+        }
+        if (!AcceptChoice.accpect("Xác nhận thay đổi vai trò người dùng")) {
+            System.out.printf("%s%s%s\n", Config.YELLOW, "Không thay đổi vai trò", Config.RESET);
+            return;
         }
         // Gọi DB lưu dữ liệu
         boolean result = userDAO.grantRole(id, role);

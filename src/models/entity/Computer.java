@@ -8,17 +8,17 @@ public class Computer {
     private int id;
     private String name;
     private String configuration;
-    private int categoryId;
-    private double price;
+    private Category category;
+    private double pricePerHours;
     private ComputerStatus status;
     private LocalDateTime createdAt;
 
-    public Computer(int id, String name, String configuration, int categoryId, double price, ComputerStatus status, LocalDateTime createdAt) {
+    public Computer(int id, String name, String configuration, Category category, double pricePerHours, ComputerStatus status, LocalDateTime createdAt) {
         this.id = id;
         this.name = name;
         this.configuration = configuration;
-        this.categoryId = categoryId;
-        this.price = price;
+        this.category = category;
+        this.pricePerHours = pricePerHours;
         this.status = status;
         this.createdAt = createdAt;
     }
@@ -47,12 +47,20 @@ public class Computer {
         this.configuration = configuration;
     }
 
-    public double getPrice() {
-        return price;
+    public Category getCategory() {
+        return category;
     }
 
-    public void setPrice(double price) {
-        this.price = price;
+    public void setCategory(Category category) {
+        this.category = category;
+    }
+
+    public double getPricePerHours() {
+        return pricePerHours;
+    }
+
+    public void setPricePerHours(double pricePerHours) {
+        this.pricePerHours = pricePerHours;
     }
 
     public ComputerStatus getStatus() {
@@ -69,13 +77,5 @@ public class Computer {
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
-    }
-
-    public int getCategoryId() {
-        return categoryId;
-    }
-
-    public void setCategoryId(int categoryId) {
-        this.categoryId = categoryId;
     }
 }

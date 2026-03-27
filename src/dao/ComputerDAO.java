@@ -6,11 +6,11 @@ import enums.ComputerStatus;
 import java.util.List;
 
 public interface ComputerDAO {
-    public boolean saveComputer(String name, String configuration, int categoryId, double price, ComputerStatus statusdAt);
+    public boolean saveComputer(String name, String configuration, int categoryId, double price, String statusdAt);
 
     public Computer findComputerById(int id);
 
-    public boolean updateComputer(int id, String name, String configuration, int categoryId, double price, ComputerStatus status);
+    public boolean updateComputer(int id, String name, String configuration, int categoryId, double price, String status);
 
     public boolean deleteComputer(int id);
 

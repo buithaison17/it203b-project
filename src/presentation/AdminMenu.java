@@ -3,11 +3,13 @@ package presentation;
 import services.AdminServiceImpl;
 import services.CategoryService;
 import services.CategoryServiceImpl;
+import services.ComputerServiceImpl;
 import utils.InputMethod;
 
 public class AdminMenu {
     private final AdminServiceImpl adminService = AdminServiceImpl.getInstance();
     private final CategoryServiceImpl categoryService = CategoryServiceImpl.getInstance();
+    private final ComputerServiceImpl computerService = ComputerServiceImpl.getInstance();
 
     public void showMenu() {
         int choice;
@@ -57,6 +59,20 @@ public class AdminMenu {
                     break;
                 case 8:
                     categoryService.updateCategory();
+                    break;
+                case 9:
+                    computerService.findAll();
+                    break;
+                case 10:
+                    computerService.addComputer();
+                    break;
+                case 11:
+                    computerService.updateComputer();
+                    break;
+                case 12:
+                    computerService.deleteComputer();
+                    break;
+                case 13:
                     break;
                 case 15:
                     adminService.generateUserReport();

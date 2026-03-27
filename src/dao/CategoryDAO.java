@@ -4,7 +4,7 @@ import models.entity.Category;
 
 import java.util.List;
 
-public interface CategoryDao {
+public interface CategoryDAO {
     public boolean saveCategory(String name, String description);
 
     public boolean updateCategory(int id, String name, String description);

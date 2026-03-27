@@ -11,7 +11,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CategoryDaoImpl implements CategoryDao {
+public class CategoryDaoImpl implements CategoryDAO {
     private static CategoryDaoImpl instance;
 
     private CategoryDaoImpl() {
