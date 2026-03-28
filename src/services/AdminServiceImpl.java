@@ -5,7 +5,6 @@ import exceptions.DuplicateEmailException;
 import exceptions.InvalidEmailException;
 import exceptions.InvalidRoleException;
 import models.dto.UserDTO;
-import models.entity.User;
 import utils.*;
 
 import java.util.List;

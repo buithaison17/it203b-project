@@ -1,15 +1,13 @@
 package presentation;
 
-import services.AdminServiceImpl;
-import services.CategoryService;
-import services.CategoryServiceImpl;
-import services.ComputerServiceImpl;
+import services.*;
 import utils.InputMethod;
 
 public class AdminMenu {
     private final AdminServiceImpl adminService = AdminServiceImpl.getInstance();
     private final CategoryServiceImpl categoryService = CategoryServiceImpl.getInstance();
     private final ComputerServiceImpl computerService = ComputerServiceImpl.getInstance();
+    private final FoodServiceImpl foodService = FoodServiceImpl.getInstance();
 
     public void showMenu() {
         int choice;
@@ -73,9 +71,21 @@ public class AdminMenu {
                     computerService.deleteComputer();
                     break;
                 case 13:
+
+                    break;
+                case 14:
+                    foodService.saveFood();
                     break;
                 case 15:
-                    adminService.generateUserReport();
+                    foodService.deleteFood();
+                    break;
+                case 16:
+                    foodService.updateFood();
+                    break;
+                case 17:
+                    foodService.updateStock();
+                    break;
+                default:
                     break;
             }
         } while (choice != 0);
