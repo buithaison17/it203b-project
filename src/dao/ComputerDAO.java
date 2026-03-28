@@ -14,5 +14,7 @@ public interface ComputerDAO {
 
     public boolean deleteComputer(int id);
 
-    public List<Computer> findAll();
+    public List<Computer> findAll(int currentPage);
+
+    public int getTotalPage();
 }

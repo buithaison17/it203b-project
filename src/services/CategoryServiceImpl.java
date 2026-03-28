@@ -38,10 +38,37 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public void findAll() {
-        List<Category> categories = categoryDao.findAll();
-        for (Category category : categories) {
-            System.out.println(category);
+        int totalPage = categoryDao.getTotalPage();
+        if (totalPage == 0) {
+            System.out.printf("%s%s%s\n", Config.YELLOW, "Không có khu vực", Config.RESET);
+            return;
         }
+        int choice;
+        int currentPage = 1;
+        do {
+            List<Category> categories = categoryDao.findAll(currentPage);
+            System.out.println("|----------------------------------------------------------------------------------------|");
+            System.out.println("|                                        DANH SÁCH KHU VỰC                               |");
+            System.out.println("|----------------------------------------------------------------------------------------|");
+            System.out.printf("| %-8s | %-20s | %-30s | %-19s |\n", "ID", "Tên", "Mô tả", "Ngày tạo", "", "");
+            System.out.println("|----------------------------------------------------------------------------------------|");
+            categories.forEach(System.out::println);
+            System.out.println("|----------------------------------------------------------------------------------------|");
+            choice = InputMethod.getIntegerPositive("[1] Prev, [2] Next, [3].Exit");
+            switch (choice) {
+                case 1:
+                    currentPage = currentPage > 1 ? currentPage - 1 : currentPage;
+                    break;
+                case 2:
+                    currentPage = currentPage < totalPage ? currentPage + 1 : currentPage;
+                    break;
+                case 3:
+                    break;
+                default:
+                    System.out.printf("%s%s%s\n", Config.RED, "Lựa chọn không hợp lệ", Config.RESET);
+                    break;
+            }
+        } while (choice != 3);
     }
 
     @Override

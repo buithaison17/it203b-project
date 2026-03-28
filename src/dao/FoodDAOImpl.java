@@ -8,6 +8,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class FoodDAOImpl implements FoodDAO {
     private static FoodDAOImpl instance = null;
@@ -101,5 +103,39 @@ public class FoodDAOImpl implements FoodDAO {
             System.out.printf("%s%s%s\n", Config.RED, "Đã xảy ra lỗi vui lòng thử lại", Config.RESET);
         }
         return null;
+    }
+
+    @Override
+    public List<Food> findAll(int currentPage) {
+        List<Food> foods = new ArrayList<>();
+        String findAllFoodsSql = "select food_id, name, description, price, stock, created_at from foods limit ? offset ?";
+        try (Connection connection = new DatabaseConnection().getConnection();
+             PreparedStatement statement = connection.prepareStatement(findAllFoodsSql)) {
+            statement.setInt(1, Config.ROW_PER_PAGE);
+            statement.setInt(2, (currentPage - 1) * Config.ROW_PER_PAGE);
+            ResultSet resultSet = statement.executeQuery();
+            while (resultSet.next()) {
+                foods.add(mapToFood(resultSet));
+            }
+        } catch (SQLException exception) {
+            System.out.printf("%s%s%s\n", Config.RED, "Đã xảy ra lỗi vui lòng thử lại", Config.RESET);
+        }
+        return foods;
+    }
+
+    @Override
+    public int getTotalPage() {
+        String getTotalRecordSql = "select count(*) as totalRecord from foods";
+        try (Connection connection = new DatabaseConnection().getConnection();
+             PreparedStatement statement = connection.prepareStatement(getTotalRecordSql)) {
+            ResultSet resultSet = statement.executeQuery();
+            if (resultSet.next()) {
+                int totalRecord = resultSet.getInt("totalRecord");
+                return (int) (Math.ceil((double) totalRecord / Config.ROW_PER_PAGE));
+            }
+        } catch (SQLException exception) {
+            System.out.printf("%s%s%s\n", Config.RED, "Đã xảy ra lỗi vui lòng thử lại", Config.RESET);
+        }
+        return 0;
     }
 }

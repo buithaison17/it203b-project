@@ -66,4 +66,10 @@ public class Food {
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
+
+    @Override
+    public String toString() {
+        return String.format("| %-8s | %-20s | %-30s | %-10.2f | %-8s | %-20s |",
+                id, name, description, price, stock, createdAt);
+    }
 }

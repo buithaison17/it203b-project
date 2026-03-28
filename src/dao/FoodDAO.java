@@ -2,7 +2,7 @@ package dao;
 
 import models.entity.Food;
 
-import java.sql.SQLException;
+import java.util.List;
 
 public interface FoodDAO {
     public boolean saveFood(String name, String description, double price, int stock);
@@ -14,4 +14,8 @@ public interface FoodDAO {
     public boolean updateStock(int foodId, int newStock);
 
     public Food findById(int foodId);
+
+    public List<Food> findAll(int currentPage);
+
+    public int getTotalPage();
 }

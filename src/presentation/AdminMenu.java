@@ -71,7 +71,7 @@ public class AdminMenu {
                     computerService.deleteComputer();
                     break;
                 case 13:
-
+                    foodService.pagination();
                     break;
                 case 14:
                     foodService.saveFood();

@@ -6,6 +6,8 @@ import utils.AcceptChoice;
 import utils.Config;
 import utils.InputMethod;
 
+import java.util.List;
+
 public class FoodServiceImpl implements FoodService {
     private static FoodServiceImpl instance;
     private FoodDAOImpl foodDAO = FoodDAOImpl.getInstance();
@@ -92,5 +94,41 @@ public class FoodServiceImpl implements FoodService {
         } else {
             System.out.printf("%s%s%s\n", Config.RED, "Cập nhật số lượng đồ ăn/ nước uống thất bại", Config.RESET);
         }
+    }
+
+    @Override
+    public void pagination() {
+        int totalPage = foodDAO.getTotalPage();
+        if (totalPage == 0) {
+            System.out.printf("%s%s%s\n", Config.YELLOW, "Không có dữ liệu", Config.RESET);
+            return;
+        }
+        int choice = 1;
+        int currentPage = 1;
+        do {
+            // Hiển thị bảng
+            System.out.println("|-----------------------------------------------------------------------------------------------------------------|");
+            System.out.println("|                                        DANH SÁCH ĐỒ ĂN/ NƯỚC UỐNG                                               |");
+            System.out.println("|-----------------------------------------------------------------------------------------------------------------|");
+            System.out.printf("| %-8s | %-20s | %-30s | %-10s | %-8s | %-20s |\n", "ID", "Tên", "Mô tả", "Giá", "Số lượng", "Ngày tạo");
+            System.out.println("|-----------------------------------------------------------------------------------------------------------------|");
+            List<Food> foods = foodDAO.findAll(currentPage);
+            foods.forEach(System.out::println);
+            System.out.println("|-----------------------------------------------------------------------------------------------------------------|");
+            choice = InputMethod.getIntegerPositive("[1] Prev, [2] Next, [3].Exit");
+            switch (choice) {
+                case 1:
+                    currentPage = currentPage > 1 ? currentPage - 1 : currentPage;
+                    break;
+                case 2:
+                    currentPage = currentPage < totalPage ? currentPage + 1 : currentPage;
+                    break;
+                case 3:
+                    break;
+                default:
+                    System.out.printf("%s%s%s\n", Config.RED, "Lựa chọn không hợp lệ", Config.RESET);
+                    break;
+            }
+        } while (choice != 3);
     }
 }

@@ -69,13 +69,7 @@ public class UserDTO {
 
     @Override
     public String toString() {
-        return "UserDTO{" +
-                "id=" + id +
-                ", fullName='" + fullName + '\'' +
-                ", email='" + email + '\'' +
-                ", role='" + role + '\'' +
-                ", balance=" + balance +
-                ", createdAt=" + createdAt +
-                '}';
+        return String.format("| %-7s | %-15s | %-20s | %-10s | %-10.2f | %-20s |",
+                id, fullName, email, role, balance, createdAt);
     }
 }

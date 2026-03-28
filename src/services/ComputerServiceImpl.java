@@ -4,11 +4,14 @@ import dao.ComputerDAOImpl;
 import enums.ComputerStatus;
 import exceptions.InvalidCategoryException;
 import exceptions.InvalidComputerStatusException;
+import models.entity.Category;
 import models.entity.Computer;
 import utils.AcceptChoice;
 import utils.Config;
 import utils.InputMethod;
 import utils.Validate;
+
+import java.util.List;
 
 public class ComputerServiceImpl implements ComputerService {
     private static ComputerServiceImpl instance;
@@ -64,7 +67,24 @@ public class ComputerServiceImpl implements ComputerService {
 
     @Override
     public void findAll() {
-
+        int totalPage = computerDAO.getTotalPage();
+        if (totalPage == 0) {
+            System.out.printf("%s%s%s\n", Config.RED, "Danh sách máy trống", Config.RESET);
+        }
+        int choice;
+        int currentPage = 1;
+        do {
+            List<Computer> computers = computerDAO.findAll(currentPage);
+            System.out.println("|--------------------------------------------------------------------------------------------------------------------------------------|");
+            System.out.println("|                                                           DANH SÁCH MÁY                                                              |");
+            System.out.println("|--------------------------------------------------------------------------------------------------------------------------------------|");
+            System.out.printf("| %-8s | %-20s | %-30s | %-10s | %-12s | %-15s | %-19s |\n",
+                    "ID", "Tên", "Cấu hình", "Khu vực", "Giá thuê/h", "Trạng thái", "Ngày tạo");
+            System.out.println("|--------------------------------------------------------------------------------------------------------------------------------------|");
+            computers.forEach(System.out::println);
+            System.out.println("|--------------------------------------------------------------------------------------------------------------------------------------|");
+            choice = InputMethod.getIntegerPositive("[1] Prev, [2] Next, [3].Exit");
+        } while (choice != 3);
     }
 
     @Override

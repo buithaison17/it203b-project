@@ -8,4 +8,6 @@ public interface FoodService {
     void updateFood();
 
     void updateStock();
+
+    void pagination();
 }

@@ -11,7 +11,9 @@ public interface CategoryDAO {
 
     public boolean deleteCategory(int id);
 
-    public List<Category> findAll();
+    public List<Category> findAll(int currentPage);
+
+    public int getTotalPage();
 
     public Category findById(int id);
 }

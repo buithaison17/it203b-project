@@ -8,13 +8,11 @@ import models.entity.User;
 import exceptions.InvalidEmailException;
 import presentation.AdminMenu;
 import presentation.CustomerMenu;
-import presentation.StaffMenu;
 import utils.Config;
 import utils.HashUtil;
 import utils.InputMethod;
 import utils.Validate;
 
-import javax.management.relation.Role;
 
 public class UserServiceImpl implements UserService {
     private static UserServiceImpl instance;
@@ -90,6 +88,7 @@ public class UserServiceImpl implements UserService {
             // Lưu người dùng đang đăng nhập
             Config.setUser(user);
             // Điều hướng Menu theo role
+            System.out.printf("%s%s%s\n", Config.GREEN, "Đăng nhập thành công", Config.RESET);
             switch (role) {
                 case ADMIN -> new AdminMenu().showMenu();
 //                case STAFF -> new StaffMenu().showMenu();

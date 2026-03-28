@@ -24,10 +24,38 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     public void findAll() {
-        List<UserDTO> userDTOList = userDAO.findAll();
-        for (UserDTO userDTO : userDTOList) {
-            System.out.println(userDTO);
+        int totalPage = userDAO.getTotalPage();
+        if (totalPage == 0) {
+            System.out.printf("%s%s%s\n", Config.YELLOW, "Không có người dùng", Config.RESET);
+            return;
         }
+        int choice;
+        int currentPage = 1;
+        do {
+            // Hiển thị bảng
+            System.out.println("|---------------------------------------------------------------------------------------------------|");
+            System.out.println("|                                       DANH SÁCH NGƯỜI DÙNG                                        |");
+            System.out.println("|---------------------------------------------------------------------------------------------------|");
+            System.out.printf("| %-7s | %-15s | %-20s | %-10s | %-10s | %-20s |\n", "ID", "Họ tên", "Email", "Vai trò", "Số dư", "Ngày tạo");
+            System.out.println("|---------------------------------------------------------------------------------------------------|");
+            List<UserDTO> userDTOS = userDAO.findAll(currentPage);
+            userDTOS.forEach(System.out::println);
+            System.out.println("|---------------------------------------------------------------------------------------------------|");
+            choice = InputMethod.getIntegerPositive("[1] Prev, [2] Next, [3].Exit");
+            switch (choice) {
+                case 1:
+                    currentPage = currentPage > 1 ? currentPage - 1 : currentPage;
+                    break;
+                case 2:
+                    currentPage = currentPage < totalPage ? currentPage + 1 : currentPage;
+                    break;
+                case 3:
+                    break;
+                default:
+                    System.out.printf("%s%s%s\n", Config.RED, "Lựa chọn không hợp lệ", Config.RESET);
+                    break;
+            }
+        } while (choice != 3);
     }
 
     @Override

@@ -10,7 +10,7 @@ public interface UserDAO {
 
     public User findByEmail(String email);
 
-    public List<UserDTO> findAll();
+    public List<UserDTO> findAll(int currentPage);
 
     public boolean changePassword(int id, String newPassword);
 
@@ -19,4 +19,6 @@ public interface UserDAO {
     public UserDTO findById(int id);
 
     public boolean grantRole(int id, String role);
+
+    public int getTotalPage();
 }

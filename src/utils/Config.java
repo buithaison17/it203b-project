@@ -45,6 +45,9 @@ public class Config {
     public static final String CYAN_BRIGHT = "\u001B[96m";
     public static final String WHITE_BRIGHT = "\u001B[97m";
 
+    // Số bản ghi có trong 1 trag
+    public static final int ROW_PER_PAGE = 1;
+
     // Lưu người dùng hiện tại đang đăng nhập để lấy thông tin
     private static User user = null;
 

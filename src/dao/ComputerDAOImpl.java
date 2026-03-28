@@ -107,11 +107,13 @@ public class ComputerDAOImpl implements ComputerDAO {
     }
 
     @Override
-    public List<Computer> findAll() {
+    public List<Computer> findAll(int currentPage) {
         List<Computer> computers = new ArrayList<>();
-        String findAllComputersSql = "select id, name, configuration, price, status, category_id, created_at from computers";
+        String findAllComputersSql = "select computer_id, name, configuration, price, status, category_id, created_at from computers limit ? offset ?";
         try (Connection connection = new DatabaseConnection().getConnection();
              PreparedStatement stmFindAllComputers = connection.prepareStatement(findAllComputersSql)) {
+            stmFindAllComputers.setInt(1, Config.ROW_PER_PAGE);
+            stmFindAllComputers.setInt(2, (currentPage - 1) * Config.ROW_PER_PAGE);
             ResultSet resultSet = stmFindAllComputers.executeQuery();
             while (resultSet.next()) {
                 Computer computer = mapToComputer(resultSet);
@@ -121,5 +123,21 @@ public class ComputerDAOImpl implements ComputerDAO {
             System.out.printf("%s%s%s\n", Config.RED, "Đã xảy ra lỗi vui lòng thử lại", Config.RESET);
         }
         return computers;
+    }
+
+    @Override
+    public int getTotalPage() {
+        String getTotalRecordSql = "select count(*) as totalRecord from computers";
+        try (Connection connection = new DatabaseConnection().getConnection();
+             PreparedStatement statement = connection.prepareStatement(getTotalRecordSql)) {
+            ResultSet resultSet = statement.executeQuery();
+            if (resultSet.next()) {
+                int totalRecord = resultSet.getInt("totalRecord");
+                return (int) (Math.ceil((double) totalRecord / Config.ROW_PER_PAGE));
+            }
+        } catch (SQLException exception) {
+            System.out.printf("%s%s%s\n", Config.RED, "Đã xảy ra lỗi vui lòng thử lại", Config.RESET);
+        }
+        return 0;
     }
 }

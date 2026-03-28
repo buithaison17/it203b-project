@@ -67,11 +67,29 @@ public class CategoryDaoImpl implements CategoryDAO {
     }
 
     @Override
-    public List<Category> findAll() {
+    public int getTotalPage() {
+        String getTotalRecordSql = "select count(*) as totalRecord from categories";
+        try (Connection connection = new DatabaseConnection().getConnection();
+             PreparedStatement statement = connection.prepareStatement(getTotalRecordSql)) {
+            ResultSet resultSet = statement.executeQuery();
+            if (resultSet.next()) {
+                int totalRecord = resultSet.getInt("totalRecord");
+                return (int) (Math.ceil((double) totalRecord / Config.ROW_PER_PAGE));
+            }
+        } catch (SQLException exception) {
+            System.out.printf("%s%s%s\n", Config.RED, "Đã xảy ra lỗi vui lòng thử lại", Config.RESET);
+        }
+        return 0;
+    }
+
+    @Override
+    public List<Category> findAll(int currentPage) {
         List<Category> categories = new ArrayList<>();
-        String findAllCategoriesSql = "select id, name, description from categories";
+        String findAllCategoriesSql = "select id, name, description, created_at from categories limit ? offset ?";
         try (Connection connection = new DatabaseConnection().getConnection();
              PreparedStatement stmFindAllCategories = connection.prepareStatement(findAllCategoriesSql)) {
+            stmFindAllCategories.setInt(1, Config.ROW_PER_PAGE);
+            stmFindAllCategories.setInt(2, (currentPage - 1) * Config.ROW_PER_PAGE);
             ResultSet resultSet = stmFindAllCategories.executeQuery();
             while (resultSet.next()) {
                 categories.add(mapToCategory(resultSet));
@@ -86,14 +104,15 @@ public class CategoryDaoImpl implements CategoryDAO {
         return new Category(
                 resultSet.getInt("id"),
                 resultSet.getString("name"),
-                resultSet.getString("description")
+                resultSet.getString("description"),
+                resultSet.getTimestamp("created_at").toLocalDateTime()
         );
     }
 
     @Override
     public Category findById(int id) {
         Category category = null;
-        String findByIdSql = "select id, name, description from categories where id = ?";
+        String findByIdSql = "select id, name, description, created_at from categories where id = ?";
         try (Connection connection = new DatabaseConnection().getConnection();
              PreparedStatement statement = connection.prepareStatement(findByIdSql)) {
             statement.setInt(1, id);

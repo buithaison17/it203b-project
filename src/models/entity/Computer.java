@@ -78,4 +78,10 @@ public class Computer {
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
+
+    @Override
+    public String toString() {
+        return String.format("| %-8d | %-20s | %-30s | %-10s | %-12.2f | %-15s | %-15s |",
+                id, name, configuration, category.getName(), pricePerHours, status, createdAt);
+    }
 }

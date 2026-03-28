@@ -90,19 +90,38 @@ public class UserDAOImpl implements UserDAO {
 
     // Lấy danh sách user
     @Override
-    public List<UserDTO> findAll() {
+    public List<UserDTO> findAll(int currentPage) {
         List<UserDTO> userDTOS = new ArrayList<>();
-        String findAllSql = "select user_id, full_name, email, role, balance, created_at from users";
+        String findAllSql = "select user_id, full_name, email, role, balance, created_at from users limit ? offset ?";
         try (Connection connection = new DatabaseConnection().getConnection(); PreparedStatement stmFindAll = connection.prepareStatement(findAllSql)) {
+            stmFindAll.setInt(1, Config.ROW_PER_PAGE);
+            stmFindAll.setInt(2, (currentPage - 1) * Config.ROW_PER_PAGE);
             ResultSet resultSet = stmFindAll.executeQuery();
             while (resultSet.next()) {
                 UserDTO userDTO = maptoUserDTO(resultSet);
                 userDTOS.add(userDTO);
             }
         } catch (SQLException e) {
+//            throw new RuntimeException(e);
             System.out.printf("%s%s%s\n", Config.RED, "Đã xảy ra lỗi vui lòng thử lại", Config.RESET);
         }
         return userDTOS;
+    }
+
+    @Override
+    public int getTotalPage() {
+        String getTotalRecordSql = "select count(*) as totalRecord from users";
+        try (Connection connection = new DatabaseConnection().getConnection();
+             PreparedStatement statement = connection.prepareStatement(getTotalRecordSql)) {
+            ResultSet resultSet = statement.executeQuery();
+            if (resultSet.next()) {
+                int totalRecord = resultSet.getInt("totalRecord");
+                return (int) (Math.ceil((double) totalRecord / Config.ROW_PER_PAGE));
+            }
+        } catch (SQLException exception) {
+            System.out.printf("%s%s%s\n", Config.RED, "Đã xảy ra lỗi vui lòng thử lại", Config.RESET);
+        }
+        return 0;
     }
 
     // Đổi mật khẩu
