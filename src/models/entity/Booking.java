@@ -1,19 +1,27 @@
 package models.entity;
 
+import enums.BookingStatus;
+
 import java.time.LocalDateTime;
 
 public class Booking {
     private int id;
     private int customerId;
     private int computerId;
-    private double hours;
+    private LocalDateTime startTime;
+    private LocalDateTime endTime;
+    private double totalPrice;
+    private BookingStatus status;
     private LocalDateTime createdAt;
 
-    public Booking(int id, int customerId, int computerId, double hours, LocalDateTime createdAt) {
+    public Booking(int id, int customerId, int computerId, LocalDateTime startTime, LocalDateTime endTime, double totalPrice, BookingStatus status, LocalDateTime createdAt) {
         this.id = id;
         this.customerId = customerId;
         this.computerId = computerId;
-        this.hours = hours;
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.totalPrice = totalPrice;
+        this.status = status;
         this.createdAt = createdAt;
     }
 
@@ -41,12 +49,36 @@ public class Booking {
         this.computerId = computerId;
     }
 
-    public double getHours() {
-        return hours;
+    public LocalDateTime getStartTime() {
+        return startTime;
     }
 
-    public void setHours(double hours) {
-        this.hours = hours;
+    public void setStartTime(LocalDateTime startTime) {
+        this.startTime = startTime;
+    }
+
+    public LocalDateTime getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(LocalDateTime endTime) {
+        this.endTime = endTime;
+    }
+
+    public double getTotalPrice() {
+        return totalPrice;
+    }
+
+    public void setTotalPrice(double totalPrice) {
+        this.totalPrice = totalPrice;
+    }
+
+    public BookingStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(BookingStatus status) {
+        this.status = status;
     }
 
     public LocalDateTime getCreatedAt() {

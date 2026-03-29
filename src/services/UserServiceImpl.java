@@ -101,22 +101,34 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public boolean changePassword(String oldPassword, String newPassword) {
-        // Kiểm tra mật khẩu
-        String trueOldPassword = Config.getUser().getPassword();
-        BCrypt.Result result = BCrypt.verifyer().verify(oldPassword.toCharArray(), trueOldPassword);
-        if (!result.verified) {
-            System.out.println("Mật khẩu không khớp");
-            return false;
-        }
-        // Mã hóa lại mật khẩu và tiến hành đổi
+    public void changePassword() {
+        String oldPassword = InputMethod.getString("Nhập mật khẩu cũ: ");
+        String newPassword = InputMethod.getString("Nhập mật khẩu mới: ");
+        String confirmPassword = InputMethod.getString("Nhập lại mật khẩu mới: ");
+
         String hashNewPassword = HashUtil.hashPassword(newPassword);
-        // Thay đổi thông tin người dùng đang đăng nhập trước
-        User user = Config.getUser();
-        user.setPassword(hashNewPassword);
-        Config.setUser(user);
-        // Gọi DAO để thay đổi trong database
-        userDAO.changePassword(user.getId(), hashNewPassword);
-        return true;
+        String hashConfirmPassword = HashUtil.hashPassword(confirmPassword);
+
+        // So sánh mật khẩu cũ
+        BCrypt.Result resultMatchOldPassword = BCrypt.verifyer().verify(oldPassword.toCharArray(), Config.getUser().getPassword());
+        if (!resultMatchOldPassword.verified) {
+            System.out.printf("%s%s%s\n", Config.RED, "Mật khẩu cũ không chính xác", Config.RESET);
+            return;
+        }
+
+        // Kiểm tra mật khẩu khớp
+        if (!newPassword.equals(confirmPassword)) {
+            System.out.printf("%s%s%s\n", Config.RED, "Mật khẩu không khớp", Config.RESET);
+            return;
+        }
+
+        // Đổi mật khẩu
+        Config.getUser().setPassword(hashNewPassword);
+        boolean result = userDAO.changePassword(Config.getUser().getId(), hashNewPassword);
+        if (result) {
+            System.out.printf("%s%s%s\n", Config.GREEN, "Đổi mật khẩu thành công", Config.RESET);
+        } else {
+            System.out.printf("%s%s%s\n", Config.RED, "Đổi mật khẩu thất bại", Config.RESET);
+        }
     }
 }

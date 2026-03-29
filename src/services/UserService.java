@@ -5,5 +5,5 @@ public interface UserService {
 
     public void login();
 
-    public boolean changePassword(String oldPassword, String newPassword);
+    public void changePassword();
 }
