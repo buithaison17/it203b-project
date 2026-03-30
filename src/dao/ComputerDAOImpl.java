@@ -55,7 +55,8 @@ public class ComputerDAOImpl implements ComputerDAO {
                 computer = mapToComputer(resultSet);
             }
         } catch (SQLException e) {
-            System.out.printf("%s%s%s\n", Config.RED, "Đã xảy ra lỗi vui lòng thử lại", Config.RESET);
+            throw new RuntimeException(e);
+//            System.out.printf("%s%s%s\n", Config.RED, "Đã xảy ra lỗi vui lòng thử lại", Config.RESET);
         }
         return computer;
     }
@@ -137,41 +138,5 @@ public class ComputerDAOImpl implements ComputerDAO {
             System.out.printf("%s%s%s\n", Config.RED, "Đã xảy ra lỗi vui lòng thử lại", Config.RESET);
         }
         return 0;
-    }
-
-    private ComputerDTO mapToComputerDTO(ResultSet resultSet) throws SQLException {
-        int computerId = resultSet.getInt("computer_id");
-        String name = resultSet.getString("name");
-        String configuration = resultSet.getString("configuration");
-        double price = resultSet.getDouble("price");
-        int categoryId = resultSet.getInt("category_id");
-        Category category = CategoryDaoImpl.getInstance().findById(categoryId);
-        return new ComputerDTO(computerId, name, configuration, price, category);
-    }
-
-    @Override
-    public List<ComputerDTO> getListComputerCanBook(int currentPage, LocalDateTime startTime, LocalDateTime endTime) {
-        List<ComputerDTO> computers = new ArrayList<>();
-
-        String sql = """
-                 select c.computer_id, c.name, c.configuration, c.price, c.category_id from computers c
-                left join booking b on c.computer_id = b.computer_id
-                and b.status in ('CONFIRMED', 'IN_PROGRESS') and not (b.start_time > ? or b.end_time < ?)
-                where c.status = 'AVAILABLE' and b.booking_id is null
-                """;
-
-        try (Connection connection = new DatabaseConnection().getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
-            statement.setTimestamp(1, Timestamp.valueOf(startTime));
-            statement.setTimestamp(2, Timestamp.valueOf(endTime));
-            ResultSet resultSet = statement.executeQuery();
-            while (resultSet.next()) {
-                ComputerDTO computerDTO = mapToComputerDTO(resultSet);
-                computers.add(computerDTO);
-            }
-        } catch (SQLException e) {
-            System.out.printf("%s%s%s\n", Config.RED, "Đã xảy ra lỗi vui lòng thử lại", Config.RESET);
-        }
-        return computers;
     }
 }

@@ -1,10 +1,15 @@
 package dao;
 
+import enums.OrderStatus;
+import models.dto.OrderDTO;
 import models.entity.Food;
+import models.entity.Order;
 import utils.Config;
 import utils.DatabaseConnection;
 
 import java.sql.*;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -63,8 +68,8 @@ public class OrderDAOImpl implements OrderDAO {
             }
         } finally {
             try {
-                connection.close();
                 connection.setAutoCommit(true);
+                connection.close();
             } catch (SQLException e) {
                 throw new RuntimeException(e);
             }
@@ -103,5 +108,88 @@ public class OrderDAOImpl implements OrderDAO {
                 .toList();
 
         return result1.stream().allMatch(num -> num == 1) && result2.stream().allMatch(num -> num == 1);
+    }
+
+    @Override
+    public int getTotalPage() {
+        String getTotalRecordSql = "select count(*) as totalRecord from orders";
+        try (Connection connection = new DatabaseConnection().getConnection();
+             PreparedStatement statement = connection.prepareStatement(getTotalRecordSql)) {
+            ResultSet resultSet = statement.executeQuery();
+            if (resultSet.next()) {
+                int totalRecord = resultSet.getInt("totalRecord");
+                return (int) Math.ceil((double) totalRecord / Config.ROW_PER_PAGE);
+            }
+        } catch (SQLException exception) {
+            System.out.printf("%s%s%s\n", Config.RED, "Đã xảy ra lỗi vui lòng thử lại", Config.RESET);
+        }
+        return 0;
+    }
+
+    private OrderDTO mapToOrderDTO(ResultSet resultSet) throws SQLException {
+        int orderId = resultSet.getInt("order_id");
+        int customerId = resultSet.getInt("customer_id");
+        double totalPrice = resultSet.getDouble("total_amount");
+        String status = resultSet.getString("status");
+        LocalDateTime createdAt = resultSet.getTimestamp("created_at").toLocalDateTime();
+        return new OrderDTO(orderId, customerId, totalPrice, OrderStatus.valueOf(status.toUpperCase()), createdAt);
+    }
+
+    @Override
+    public List<OrderDTO> viewListOrder(int currentPage) {
+        List<OrderDTO> orderDTOS = new ArrayList<>();
+        String sql = "select order_id, customer_id, total_amount, status, created_at from orders limit ? offset ?";
+        try (Connection connection = new DatabaseConnection().getConnection();
+             PreparedStatement stmViewListOrder = connection.prepareStatement(sql)) {
+            stmViewListOrder.setInt(1, Config.ROW_PER_PAGE);
+            stmViewListOrder.setInt(2, (currentPage - 1) * Config.ROW_PER_PAGE);
+            ResultSet resultSet = stmViewListOrder.executeQuery();
+            while (resultSet.next()) {
+                OrderDTO orderDTO = mapToOrderDTO(resultSet);
+                orderDTOS.add(orderDTO);
+            }
+        } catch (SQLException e) {
+            System.out.printf("%s%s%s\n", Config.RED, "Đã xảy ra lỗi vui lòng thử lại", Config.RESET);
+        }
+        return orderDTOS;
+    }
+
+    @Override
+    public boolean updateStatusOrder(int orderId, String status) {
+        String sql = "update orders set status = ? where order_id = ?";
+        try (Connection connection = new DatabaseConnection().getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, status);
+            statement.setInt(2, orderId);
+            return statement.executeUpdate() > 0;
+        } catch (SQLException exception) {
+            System.out.printf("%s%s%s\n", Config.RED, "Đã xảy ra lỗi vui lòng thử lại", Config.RESET);
+        }
+        return false;
+    }
+
+    @Override
+    public Order findById(int id) {
+        String findByIdSql = "select order_id, customer_id, total_amount, status, created_at from orders where order_id = ?";
+        try (Connection connection = new DatabaseConnection().getConnection();
+             PreparedStatement statement = connection.prepareStatement(findByIdSql)) {
+            statement.setInt(1, id);
+            ResultSet resultSet = statement.executeQuery();
+            if (resultSet.next()) {
+                return mapToOrder(resultSet);
+            }
+        } catch (SQLException exception) {
+            System.out.printf("%s%s%s\n", Config.RED, "Đã xảy ra lỗi vui lòng thử lại", Config.RESET);
+        }
+        return null;
+    }
+
+    private Order mapToOrder(ResultSet resultSet) throws SQLException {
+        int orderId = resultSet.getInt("order_id");
+        int customerId = resultSet.getInt("customer_id");
+        double totalPrice = resultSet.getDouble("total_amount");
+        String status = resultSet.getString("status");
+        LocalDateTime createdAt = resultSet.getTimestamp("created_at").toLocalDateTime();
+        return new Order(orderId, customerId, OrderStatus.valueOf(status.toUpperCase()), totalPrice, createdAt);
     }
 }

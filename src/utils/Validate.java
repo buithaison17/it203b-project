@@ -1,6 +1,7 @@
 package utils;
 
 import dao.CategoryDaoImpl;
+import enums.OrderStatus;
 import exceptions.InvalidCategoryException;
 import exceptions.InvalidComputerStatusException;
 import exceptions.InvalidEmailException;
@@ -41,5 +42,10 @@ public class Validate {
 
     public static boolean validateStartTimeLessThanEndTime(LocalDateTime startTime, LocalDateTime endTime) {
         return startTime.isBefore(endTime);
+    }
+
+
+    public static boolean validateOrderStatus(String status) {
+        return status.toLowerCase().matches("^pending|preparing|served|cancelled$");
     }
 }

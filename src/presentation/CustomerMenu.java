@@ -1,14 +1,13 @@
 package presentation;
 
-import services.FoodServiceImpl;
-import services.OrderServiceImpl;
-import services.UserServiceImpl;
+import services.*;
 import utils.InputMethod;
 
 public class CustomerMenu {
     private final FoodServiceImpl foodService = FoodServiceImpl.getInstance();
     private final OrderServiceImpl orderService = OrderServiceImpl.getInstance();
     private final UserServiceImpl userService = UserServiceImpl.getInstance();
+    private final BookingServiceImpl bookingService = BookingServiceImpl.getInstance();
 
     public void showMenu() {
         int choice;
@@ -24,7 +23,7 @@ public class CustomerMenu {
             choice = InputMethod.getIntegerPositive("Nhập chức năng: ");
             switch (choice) {
                 case 1:
-                    userService.viewComputerCanBook();
+                    bookingService.viewComputerCanBook();
                     break;
                 case 2:
                     orderService.placeOrder();

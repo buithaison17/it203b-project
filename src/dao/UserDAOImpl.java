@@ -35,7 +35,8 @@ public class UserDAOImpl implements UserDAO {
             int result = stmSaveUser.executeUpdate();
             return result > 0;
         } catch (SQLException e) {
-            return false;
+            throw new RuntimeException(e);
+//            return false;
         }
     }
 
@@ -73,7 +74,8 @@ public class UserDAOImpl implements UserDAO {
                 user = mapToUser(resultSet);
             }
         } catch (SQLException e) {
-            System.out.printf("%s%s%s\n", Config.RED, "Đã xảy ra lỗi vui lòng thử lại", Config.RESET);
+            throw new RuntimeException(e);
+//            System.out.printf("%s%s%s\n", Config.RED, "Đã xảy ra lỗi vui lòng thử lại", Config.RESET);
         }
         return user;
     }

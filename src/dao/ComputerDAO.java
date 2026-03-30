@@ -19,6 +19,4 @@ public interface ComputerDAO {
     public List<Computer> findAll(int currentPage);
 
     public int getTotalPage();
-
-    public List<ComputerDTO> getListComputerCanBook(int currentPage, LocalDateTime startTime, LocalDateTime endTime);
 }

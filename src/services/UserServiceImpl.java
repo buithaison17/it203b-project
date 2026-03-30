@@ -1,29 +1,23 @@
 package services;
 
 import at.favre.lib.crypto.bcrypt.BCrypt;
-import dao.ComputerDAOImpl;
 import dao.UserDAOImpl;
 import enums.UserRole;
 import exceptions.DuplicateEmailException;
-import models.dto.ComputerDTO;
 import models.dto.UserDTO;
 import models.entity.User;
 import exceptions.InvalidEmailException;
 import presentation.AdminMenu;
 import presentation.CustomerMenu;
+import presentation.StaffMenu;
 import utils.Config;
 import utils.HashUtil;
 import utils.InputMethod;
 import utils.Validate;
 
-import java.time.LocalDateTime;
-import java.util.List;
-
-
 public class UserServiceImpl implements UserService {
     private static UserServiceImpl instance;
     private final UserDAOImpl userDAO = UserDAOImpl.getInstance();
-    private final ComputerDAOImpl computerDAO = ComputerDAOImpl.getInstance();
 
     private UserServiceImpl() {
     }
@@ -87,7 +81,7 @@ public class UserServiceImpl implements UserService {
         }
 
         // Lấy role để điều hướng menu
-        UserRole role = UserRole.valueOf(user.getRole());
+        UserRole role = UserRole.valueOf(user.getRole().toUpperCase());
 
         // Nếu tồn tại kiểm tra mật khẩu xem có khớp không
         BCrypt.Result result = BCrypt.verifyer().verify(password.toCharArray(), user.getPassword());
@@ -98,7 +92,7 @@ public class UserServiceImpl implements UserService {
             System.out.printf("%s%s%s\n", Config.GREEN, "Đăng nhập thành công", Config.RESET);
             switch (role) {
                 case ADMIN -> new AdminMenu().showMenu();
-//                case STAFF -> new StaffMenu().showMenu();
+                case STAFF -> new StaffMenu().showMenu();
                 case CUSTOMER -> new CustomerMenu().showMenu();
             }
         } else {
@@ -213,39 +207,5 @@ public class UserServiceImpl implements UserService {
         System.out.printf("| %-7s | %-15s | %-20s | %-10s |\n", "ID", "Họ tên", "Email", "Số dư");
         System.out.println(user.toStringNotCreatedAtAndRole());
         System.out.println("-----------------------------------------------------------------");
-    }
-
-    private void displayTableComputerCanBook() {
-
-    }
-
-    @Override
-    public void viewComputerCanBook() {
-        int currentPage = 1;
-        int choice;
-        LocalDateTime startTime;
-        LocalDateTime endTime;
-        while (true) {
-            startTime = InputMethod.inputDateTime("Nhập ngày bắt đầu (HH:mm dd-MM-yyyy): ");
-            // Ngày bắt đầu phải lớn hơn ngày hiện tại
-            if (!Validate.validateDateTimeMoreThanNow(startTime)) {
-                System.out.printf("%s%s%s\n", Config.RED, "Ngày bắt đầu phải lớn hơn ngày hiện tại", Config.RESET);
-            } else {
-                break;
-            }
-        }
-        while (true) {
-            endTime = InputMethod.inputDateTime("Nhập ngày kết thúc (HH:mm dd-MM-yyyy): ");
-            if (!Validate.validateStartTimeLessThanEndTime(startTime, endTime)) {
-                System.out.printf("%s%s%s\n", Config.RED, "Ngày kết thúc phải lớn hơn ngày bắt đầu", Config.RESET);
-            } else {
-                break;
-            }
-        }
-        // Hiển thị danh sách
-        List<ComputerDTO> computerDTOS = computerDAO.getListComputerCanBook(currentPage, startTime, endTime);
-        System.out.println("--------------- DANH SÁCH MÁY ---------------");
-
-        computerDTOS.forEach(System.out::println);
     }
 }

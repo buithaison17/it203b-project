@@ -10,6 +10,4 @@ public interface UserService {
     public void rechargeMoney();
 
     public void viewProfile();
-
-    public void viewComputerCanBook();
 }
