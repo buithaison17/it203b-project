@@ -3,6 +3,9 @@ package utils;
 import dao.UserDAOImpl;
 import services.AdminServiceImpl;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.Scanner;
 
 public class InputMethod {
@@ -144,6 +147,21 @@ public class InputMethod {
                 }
             } catch (NumberFormatException e) {
                 System.out.println("Nhập không hợp lệ");
+            }
+        }
+    }
+
+    // Nhập ngày có kèm theo giờ
+    public static LocalDateTime inputDateTime(String title) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm dd-MM-yyyy");
+        while (true) {
+            System.out.print(title);
+            String input = sc.nextLine();
+            try {
+                LocalDateTime dateTime = LocalDateTime.parse(input, formatter);
+                return dateTime;
+            } catch (DateTimeParseException e) {
+                System.out.printf("%s%s%s\n", Config.RED, "Nhập không đúng định dạng", Config.RESET);
             }
         }
     }

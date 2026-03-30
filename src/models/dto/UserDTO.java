@@ -72,4 +72,9 @@ public class UserDTO {
         return String.format("| %-7s | %-15s | %-20s | %-10s | %-10.2f | %-20s |",
                 id, fullName, email, role, balance, createdAt);
     }
+
+    public String toStringNotCreatedAtAndRole() {
+        return String.format("| %-7s | %-15s | %-20s | %-10.2f |",
+                id, fullName, email, balance);
+    }
 }

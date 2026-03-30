@@ -184,4 +184,34 @@ public class UserDAOImpl implements UserDAO {
         }
         return false;
     }
+
+    @Override
+    public boolean updateBalance(int userId, double amount) {
+        String updateBalanceSql = "update users set balance = balance + ? where user_id = ?";
+        Connection connection = new DatabaseConnection().getConnection();
+        try {
+            connection.setAutoCommit(false);
+            PreparedStatement statement = connection.prepareStatement(updateBalanceSql);
+            statement.setDouble(1, amount);
+            statement.setInt(2, userId);
+            Config.getUser().setBalance(Config.getUser().getBalance() + amount);
+            connection.commit();
+            return statement.executeUpdate() > 0;
+        } catch (SQLException exception) {
+            try {
+                connection.rollback();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+            System.out.printf("%s%s%s\n", Config.RED, "Đã xảy ra lỗi vui lòng thử lại", Config.RESET);
+        } finally {
+            try {
+                connection.setAutoCommit(true);
+                connection.close();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return false;
+    }
 }

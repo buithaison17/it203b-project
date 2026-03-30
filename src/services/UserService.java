@@ -6,4 +6,10 @@ public interface UserService {
     public void login();
 
     public void changePassword();
+
+    public void rechargeMoney();
+
+    public void viewProfile();
+
+    public void viewComputerCanBook();
 }

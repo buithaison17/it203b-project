@@ -1,8 +1,10 @@
 package dao;
 
+import models.dto.ComputerDTO;
 import models.entity.Computer;
 import enums.ComputerStatus;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface ComputerDAO {
@@ -17,4 +19,6 @@ public interface ComputerDAO {
     public List<Computer> findAll(int currentPage);
 
     public int getTotalPage();
+
+    public List<ComputerDTO> getListComputerCanBook(int currentPage, LocalDateTime startTime, LocalDateTime endTime);
 }

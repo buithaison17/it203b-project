@@ -14,7 +14,8 @@ public class OrderDAOImpl implements OrderDAO {
 
     private static OrderDAOImpl instance;
 
-    private OrderDAOImpl() {}
+    private OrderDAOImpl() {
+    }
 
     public static OrderDAOImpl getInstance() {
         if (instance == null) {
@@ -60,9 +61,10 @@ public class OrderDAOImpl implements OrderDAO {
             } catch (SQLException e) {
                 throw new RuntimeException(e);
             }
-        }finally {
+        } finally {
             try {
                 connection.close();
+                connection.setAutoCommit(true);
             } catch (SQLException e) {
                 throw new RuntimeException(e);
             }

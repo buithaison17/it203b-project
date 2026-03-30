@@ -6,6 +6,8 @@ import exceptions.InvalidComputerStatusException;
 import exceptions.InvalidEmailException;
 import exceptions.InvalidRoleException;
 
+import java.time.LocalDateTime;
+
 public class Validate {
     private static CategoryDaoImpl categoryDao = CategoryDaoImpl.getInstance();
 
@@ -31,5 +33,13 @@ public class Validate {
         if (categoryDao.findById(categoryId) == null) {
             throw new InvalidCategoryException("Khu vực không tồn tại");
         }
+    }
+
+    public static boolean validateDateTimeMoreThanNow(LocalDateTime startTime) {
+        return startTime.isAfter(LocalDateTime.now());
+    }
+
+    public static boolean validateStartTimeLessThanEndTime(LocalDateTime startTime, LocalDateTime endTime) {
+        return startTime.isBefore(endTime);
     }
 }

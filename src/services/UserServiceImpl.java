@@ -1,9 +1,12 @@
 package services;
 
 import at.favre.lib.crypto.bcrypt.BCrypt;
+import dao.ComputerDAOImpl;
 import dao.UserDAOImpl;
 import enums.UserRole;
 import exceptions.DuplicateEmailException;
+import models.dto.ComputerDTO;
+import models.dto.UserDTO;
 import models.entity.User;
 import exceptions.InvalidEmailException;
 import presentation.AdminMenu;
@@ -13,10 +16,14 @@ import utils.HashUtil;
 import utils.InputMethod;
 import utils.Validate;
 
+import java.time.LocalDateTime;
+import java.util.List;
+
 
 public class UserServiceImpl implements UserService {
     private static UserServiceImpl instance;
     private final UserDAOImpl userDAO = UserDAOImpl.getInstance();
+    private final ComputerDAOImpl computerDAO = ComputerDAOImpl.getInstance();
 
     private UserServiceImpl() {
     }
@@ -130,5 +137,115 @@ public class UserServiceImpl implements UserService {
         } else {
             System.out.printf("%s%s%s\n", Config.RED, "Đổi mật khẩu thất bại", Config.RESET);
         }
+    }
+
+    private void paymentByMoMo() {
+        double amount;
+        while (true) {
+            amount = InputMethod.getDoubleInteger("Nhập số tiền: ");
+            if (amount == 0) {
+                System.out.printf("%s%s%s\n", Config.RED, "Số tiền phải lớn hơn 0", Config.RESET);
+            } else {
+                break;
+            }
+        }
+        boolean result = userDAO.updateBalance(Config.getUser().getId(), amount);
+        if (result) {
+            System.out.printf("%s%s%s\n", Config.GREEN, "Thanh toán thành công bằng MoMo", Config.RESET);
+        } else {
+            System.out.printf("%s%s%s\n", Config.RED, "Thanh toán thất bại", Config.RESET);
+        }
+    }
+
+    private void paymentByMBBank() {
+        double amount;
+        while (true) {
+            amount = InputMethod.getDoubleInteger("Nhập số tiền: ");
+            if (amount == 0) {
+                System.out.printf("%s%s%s\n", Config.RED, "Số tiền phải lớn hơn 0", Config.RESET);
+            } else {
+                break;
+            }
+        }
+        boolean result = userDAO.updateBalance(Config.getUser().getId(), amount);
+        if (result) {
+            System.out.printf("%s%s%s\n", Config.GREEN, "Thanh toán thành công bằng MBBank", Config.RESET);
+        } else {
+            System.out.printf("%s%s%s\n", Config.RED, "Thanh toán thất bại", Config.RESET);
+        }
+    }
+
+    @Override
+    public void rechargeMoney() {
+        int choice;
+        do {
+            System.out.println("1. MoMo");
+            System.out.println("2. MBBank");
+            System.out.println("3. Thoát");
+            choice = InputMethod.getIntegerPositive("Chọn phương thức thanh toán: ");
+            switch (choice) {
+                case 1:
+                    paymentByMoMo();
+                    return;
+                case 2:
+                    paymentByMBBank();
+                    return;
+                case 3:
+                    break;
+                default:
+                    System.out.printf("%s%s%s\n", Config.YELLOW, "Chức năng không hợp lệ", Config.RESET);
+                    break;
+            }
+        } while (choice != 3);
+    }
+
+    @Override
+    public void viewProfile() {
+        System.out.println("----------------------- THÔNG TIN CÁ NHÂN -----------------------");
+        UserDTO user = new UserDTO(
+                Config.getUser().getId(),
+                Config.getUser().getFullName(),
+                Config.getUser().getEmail(),
+                Config.getUser().getRole(),
+                Config.getUser().getBalance(),
+                Config.getUser().getCreatedAt());
+
+        System.out.printf("| %-7s | %-15s | %-20s | %-10s |\n", "ID", "Họ tên", "Email", "Số dư");
+        System.out.println(user.toStringNotCreatedAtAndRole());
+        System.out.println("-----------------------------------------------------------------");
+    }
+
+    private void displayTableComputerCanBook() {
+
+    }
+
+    @Override
+    public void viewComputerCanBook() {
+        int currentPage = 1;
+        int choice;
+        LocalDateTime startTime;
+        LocalDateTime endTime;
+        while (true) {
+            startTime = InputMethod.inputDateTime("Nhập ngày bắt đầu (HH:mm dd-MM-yyyy): ");
+            // Ngày bắt đầu phải lớn hơn ngày hiện tại
+            if (!Validate.validateDateTimeMoreThanNow(startTime)) {
+                System.out.printf("%s%s%s\n", Config.RED, "Ngày bắt đầu phải lớn hơn ngày hiện tại", Config.RESET);
+            } else {
+                break;
+            }
+        }
+        while (true) {
+            endTime = InputMethod.inputDateTime("Nhập ngày kết thúc (HH:mm dd-MM-yyyy): ");
+            if (!Validate.validateStartTimeLessThanEndTime(startTime, endTime)) {
+                System.out.printf("%s%s%s\n", Config.RED, "Ngày kết thúc phải lớn hơn ngày bắt đầu", Config.RESET);
+            } else {
+                break;
+            }
+        }
+        // Hiển thị danh sách
+        List<ComputerDTO> computerDTOS = computerDAO.getListComputerCanBook(currentPage, startTime, endTime);
+        System.out.println("--------------- DANH SÁCH MÁY ---------------");
+
+        computerDTOS.forEach(System.out::println);
     }
 }

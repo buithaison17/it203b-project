@@ -21,4 +21,6 @@ public interface UserDAO {
     public boolean grantRole(int id, String role);
 
     public int getTotalPage();
+
+    public boolean updateBalance(int userId, double amount);
 }
