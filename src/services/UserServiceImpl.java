@@ -3,10 +3,8 @@ package services;
 import at.favre.lib.crypto.bcrypt.BCrypt;
 import dao.UserDAOImpl;
 import enums.UserRole;
-import exceptions.DuplicateEmailException;
 import models.dto.UserDTO;
 import models.entity.User;
-import exceptions.InvalidEmailException;
 import presentation.AdminMenu;
 import presentation.CustomerMenu;
 import presentation.StaffMenu;
@@ -35,16 +33,15 @@ public class UserServiceImpl implements UserService {
         // Validate Email
         while (true) {
             email = InputMethod.getString("Nhập email: ");
-            try {
-                // Đúng định dạng
-                Validate.validateEmailFormat(email);
-                // Check trùng
-                if (userDAO.findByEmail(email) != null) {
-                    throw new DuplicateEmailException("Email đã tồn tại");
-                }
+            // Đúng định dạng
+            if (!Validate.validateEmailFormat(email)) {
+                System.out.printf("%s%s%s\n", Config.RED, "Email không đúng định dạng", Config.RESET);
+            }
+            // Check trùng
+            else if (userDAO.findByEmail(email) != null) {
+                System.out.printf("%s%s%s", Config.RED, "Email đã tồn tại", Config.RESET);
+            } else {
                 break;
-            } catch (InvalidEmailException | DuplicateEmailException exception) {
-                System.out.printf("%s%s%s\n", Config.RED, exception.getMessage(), Config.RESET);
             }
         }
 
@@ -63,11 +60,10 @@ public class UserServiceImpl implements UserService {
         String email;
         while (true) {
             email = InputMethod.getString("Nhập Email: ");
-            try {
-                Validate.validateEmailFormat(email);
+            if (!Validate.validateEmailFormat(email)) {
+                System.out.printf("%s%s%s\n", Config.RED, "Email không đúng định dạng", Config.RESET);
+            } else {
                 break;
-            } catch (InvalidEmailException e) {
-                System.out.printf("%s%s%s\n", Config.RED, e.getMessage(), Config.RESET);
             }
         }
 

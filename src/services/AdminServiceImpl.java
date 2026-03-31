@@ -1,14 +1,10 @@
 package services;
 
 import dao.UserDAOImpl;
-import exceptions.DuplicateEmailException;
-import exceptions.InvalidEmailException;
-import exceptions.InvalidRoleException;
 import models.dto.UserDTO;
 import utils.*;
 
 import java.util.List;
-import java.util.Scanner;
 
 public class AdminServiceImpl implements AdminService {
     private static AdminServiceImpl instance;
@@ -66,14 +62,12 @@ public class AdminServiceImpl implements AdminService {
         String email;
         while (true) {
             email = InputMethod.getString("Nhập email: ");
-            try {
-                Validate.validateEmailFormat(email);
-                if (UserDAOImpl.getInstance().findByEmail(email) != null) {
-                    throw new DuplicateEmailException("Email đã tồn tại");
-                }
+            if (!Validate.validateEmailFormat(email)) {
+                System.out.printf("%s%s%s\n", Config.RED, "Email không đúng định dạng", Config.RESET);
+            } else if (UserDAOImpl.getInstance().findByEmail(email) != null) {
+                System.out.printf("%s%s%s\n", Config.RED, "Email đã tồn tại", Config.RESET);
+            } else {
                 break;
-            } catch (InvalidEmailException | DuplicateEmailException exception) {
-                System.out.printf("%s%s%s\n", Config.RED, exception.getMessage(), Config.RESET);
             }
         }
 
@@ -83,16 +77,11 @@ public class AdminServiceImpl implements AdminService {
         // Nhập Role
         String role;
         while (true) {
-            System.out.print("Nhập vai trò (Customer/ Staff/ Admin): ");
-            role = new Scanner(System.in).nextLine();
-            if (role.isBlank()) {
-                System.out.printf("%s%s%s\n", Config.RED, "Không được để trống", Config.RESET);
-            }
-            try {
-                Validate.validateRole(role);
+            role = InputMethod.getStringAtLeastThreeCharacters("Nhập vai trò (Customer/ Staff/ Admin): ");
+            if (!Validate.validateRole(role)) {
+                System.out.printf("%s%s%s\n", Config.RED, "Vai trò không hợp lệ", Config.RESET);
+            } else {
                 break;
-            } catch (InvalidRoleException exception) {
-                System.out.printf("%s%s%s\n", Config.RED, exception.getMessage(), Config.RESET);
             }
         }
 
@@ -142,13 +131,11 @@ public class AdminServiceImpl implements AdminService {
         // Nhập role và kiểm tra
         String role;
         while (true) {
-            System.out.print("Nhập vai trò (Customer/ Staff/ Admin): ");
-            role = new Scanner(System.in).nextLine();
-            try {
-                Validate.validateRole(role);
+            role = InputMethod.getStringAtLeastThreeCharacters("Nhập vai trò (admin/customer/staff): ");
+            if (!Validate.validateRole(role)) {
+                System.out.printf("%s%s%s\n", Config.RED, "Vai trò không hợp lệ", Config.RESET);
+            } else {
                 break;
-            } catch (InvalidRoleException exception) {
-                System.out.printf("%s%s%s\n", Config.RED, exception.getMessage(), Config.RESET);
             }
         }
         if (!AcceptChoice.accpect("Xác nhận thay đổi vai trò người dùng")) {

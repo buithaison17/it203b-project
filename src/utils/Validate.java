@@ -1,39 +1,26 @@
 package utils;
 
 import dao.CategoryDaoImpl;
-import enums.OrderStatus;
-import exceptions.InvalidCategoryException;
-import exceptions.InvalidComputerStatusException;
-import exceptions.InvalidEmailException;
-import exceptions.InvalidRoleException;
 
 import java.time.LocalDateTime;
 
 public class Validate {
     private static CategoryDaoImpl categoryDao = CategoryDaoImpl.getInstance();
 
-    public static void validateEmailFormat(String email) throws InvalidEmailException {
-        if (!email.matches("^[a-zA-Z0-9_+-]+@[a-zA-Z0-9-]+\\.[a-zA-Z]{2,}$")) {
-            throw new InvalidEmailException("Email không đúng định dạng");
-        }
+    public static boolean validateEmailFormat(String email) {
+        return email.matches("^[a-zA-Z0-9_+-]+@[a-zA-Z0-9-]+\\.[a-zA-Z]{2,}$");
     }
 
-    public static void validateRole(String role) throws InvalidRoleException {
-        if (!role.toLowerCase().matches("^admin|staff|customer$")) {
-            throw new InvalidEmailException("Vai trò không đúng định dạng");
-        }
+    public static boolean validateRole(String role) {
+        return role.toLowerCase().matches("^admin|staff|customer$");
     }
 
-    public static void validateComputerStats(String status) throws InvalidComputerStatusException {
-        if (!status.toLowerCase().matches("^available|unavailable$")) {
-            throw new InvalidComputerStatusException("Trạng thái máy không đúng định dạng");
-        }
+    public static boolean validateComputerStats(String status) {
+        return status.toLowerCase().matches("^available|unavailable$");
     }
 
-    public static void validateCategory(int categoryId) throws InvalidCategoryException {
-        if (categoryDao.findById(categoryId) == null) {
-            throw new InvalidCategoryException("Khu vực không tồn tại");
-        }
+    public static boolean validateCategory(int categoryId) {
+        return categoryDao.findById(categoryId) == null;
     }
 
     public static boolean validateDateTimeMoreThanNow(LocalDateTime startTime) {

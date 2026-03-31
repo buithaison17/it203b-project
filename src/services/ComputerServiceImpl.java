@@ -1,10 +1,6 @@
 package services;
 
 import dao.ComputerDAOImpl;
-import enums.ComputerStatus;
-import exceptions.InvalidCategoryException;
-import exceptions.InvalidComputerStatusException;
-import models.entity.Category;
 import models.entity.Computer;
 import utils.AcceptChoice;
 import utils.Config;
@@ -37,22 +33,20 @@ public class ComputerServiceImpl implements ComputerService {
         int categoryId;
         while (true) {
             categoryId = InputMethod.getIntegerPositive("Nhập ID khu vực: ");
-            try {
-                Validate.validateCategory(categoryId);
+            if (Validate.validateCategory(categoryId)) {
+                System.out.printf("%s%s%s\n", Config.RED, "Khu vực không hợp lệ", Config.RESET);
+            } else {
                 break;
-            } catch (InvalidCategoryException e) {
-                System.out.printf("%s%s%S\n", Config.RED, e.getMessage(), Config.RESET);
             }
         }
 
         String status;
         while (true) {
             status = InputMethod.getString("Nhập trạng thái (available/ unavailable): ");
-            try {
-                Validate.validateComputerStats(status);
+            if (!Validate.validateComputerStats(status)) {
+                System.out.printf("%s%s%s\n", Config.RED, "Trạng thái máy không hợp lệ", Config.RESET);
+            } else {
                 break;
-            } catch (InvalidComputerStatusException e) {
-                System.out.printf("%s%s%S\n", Config.RED, e.getMessage(), Config.RESET);
             }
         }
 
@@ -101,21 +95,19 @@ public class ComputerServiceImpl implements ComputerService {
         int newCategoryId;
         while (true) {
             newCategoryId = InputMethod.getIntegerPositive("Nhập ID khu vực mới (Enter để bỏ qua): ", computer.getCategory().getId());
-            try {
-                Validate.validateCategory(newCategoryId);
+            if (Validate.validateCategory(newCategoryId)) {
+                System.out.printf("%s%s%s\n", Config.RED, "Khu vực không hợp lệ", Config.RESET);
+            } else {
                 break;
-            } catch (InvalidCategoryException e) {
-                System.out.printf("%s%s%s\n", Config.RED, e.getMessage(), Config.RESET);
             }
         }
         String newStatus;
         while (true) {
             newStatus = InputMethod.getString("Nhập trạng thái mới (available/ unavailable) (Enter để bỏ qua): ", computer.getStatus().toString());
-            try {
-                Validate.validateComputerStats(newStatus);
+            if (!Validate.validateComputerStats(newStatus)) {
+                System.out.printf("%s%s%s\n", Config.RED, "Trạng thái máy không hợp lệ", Config.RESET);
+            } else {
                 break;
-            } catch (InvalidComputerStatusException e) {
-                System.out.printf("%s%s%s\n", Config.RED, e.getMessage(), Config.RESET);
             }
         }
         if (!AcceptChoice.accpect("Xác nhận cập nhật máy")) {
