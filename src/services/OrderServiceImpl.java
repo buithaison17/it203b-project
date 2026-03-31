@@ -1,7 +1,9 @@
 package services;
 
+import dao.FoodDAO;
 import dao.FoodDAOImpl;
 import dao.OrderDAOImpl;
+import models.dto.FoodDTO;
 import models.entity.Food;
 import utils.AcceptChoice;
 import utils.Config;
@@ -30,33 +32,33 @@ public class OrderServiceImpl implements OrderService {
 
     private void chooseFood() {
         while (true) {
-            int foodId = InputMethod.getIntegerPositive("Nhập ID món ăn (Bấm 0 để thoát): ");
-            if (foodId == 0) return;
-            Food food = foodDAO.findById(foodId);
-            // Nếu nhập đúng ID
-            if (food != null) {
-                // Nhập số lượng muốn đặt
-                int quantity = InputMethod.getIntegerPositive("Nhập số lượng muốn đặt: ");
-                // Phải nhập lớn hơn 0
-                if (quantity > 0) {
-                    // Nếu đã thêm vào giỏ hàng trước đó lấy số lượng ra và cộng dồn
-                    Integer beforeQuantity = orderItems.get(foodId);
-                    if (beforeQuantity != null) {
-                        quantity += beforeQuantity;
-                    }
-                    // Kiểm tra tồn kho
-                    if (quantity <= food.getStock()) {
-                        // Thêm vào giỏ hàng
-                        orderItems.put(foodId, quantity);
-                    } else {
-                        System.out.printf("%s%s%s\n", Config.RED, "Số lượng vượt quá tồn kho", Config.RESET);
-                    }
-                } else {
-                    System.out.printf("%s%s%s\n", Config.RED, "Số lượng phải lớn hơn 0", Config.RESET);
+            int foodId;
+            Food food;
+            while (true) {
+                foodId = InputMethod.getIntegerPositive("Nhập ID món ăn (0 để thoát): ");
+                if (foodId == 0) return;
+                food = foodDAO.findById(foodId);
+                if (food != null) {
+                    break;
                 }
-            } else {
                 System.out.printf("%s%s%s\n", Config.RED, "Món ăn không tồn tại", Config.RESET);
             }
+            int quantity;
+            while (true) {
+                quantity = InputMethod.getIntegerPositive("Nhập số lượng: ");
+                if (quantity <= 0) {
+                    System.out.printf("%s%s%s\n", Config.RED, "Số lượng phải lớn hơn 0", Config.RESET);
+                } else if (quantity > food.getStock()) {
+                    System.out.printf("%s%s%s\n", Config.RED, "Số lượng vượt quá số lượng còn trong kho", Config.RESET);
+                } else {
+                    break;
+                }
+            }
+            // Nếu đã thêm vào giỏ hàng trước đó thì cộng lại
+            if (orderItems.containsKey(foodId)) {
+                quantity += orderItems.get(foodId);
+            }
+            orderItems.put(foodId, quantity);
         }
     }
 

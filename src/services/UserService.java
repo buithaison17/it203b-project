@@ -10,4 +10,8 @@ public interface UserService {
     public void rechargeMoney();
 
     public void viewProfile();
+
+    public void showHistoryBooking();
+
+    public void showHistoryOrder();
 }

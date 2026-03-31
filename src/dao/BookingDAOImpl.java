@@ -3,6 +3,7 @@ package dao;
 import enums.BookingStatus;
 import models.dto.BookingDTO;
 import models.dto.ComputerDTO;
+import models.dto.ComputerStatistics;
 import models.entity.Category;
 import utils.Config;
 import utils.DatabaseConnection;
@@ -153,5 +154,104 @@ public class BookingDAOImpl implements BookingDAO {
             System.out.printf("%s%s%s\n", Config.RED, "Đã xảy ra lỗi vui lòng thử lại", Config.RESET);
         }
         return 0;
+    }
+
+    @Override
+    public List<BookingDTO> viewListBookingOfUser(int currentPage) {
+        List<BookingDTO> bookingDTOS = new ArrayList<>();
+        String sql = "select booking_id, customer_id, computer_id, start_time, end_time, total_amount, status, created_at from booking where customer_id = ? limit ? offset ?";
+        try (Connection connection = new DatabaseConnection().getConnection();
+             PreparedStatement stmViewListBooking = connection.prepareStatement(sql)) {
+            stmViewListBooking.setInt(1, Config.getUser().getId());
+            stmViewListBooking.setInt(2, Config.ROW_PER_PAGE);
+            stmViewListBooking.setInt(3, (currentPage - 1) * Config.ROW_PER_PAGE);
+            ResultSet resultSet = stmViewListBooking.executeQuery();
+            while (resultSet.next()) {
+                BookingDTO bookingDTO = mapToBookingDTO(resultSet);
+                bookingDTOS.add(bookingDTO);
+            }
+        } catch (SQLException e) {
+            System.out.printf("%s%s%s\n", Config.RED, "Đã xảy ra lỗi vui lòng thử lại", Config.RESET);
+        }
+        return bookingDTOS;
+    }
+
+    @Override
+    public int getTotalPageOfUser() {
+        String getTotalRecordSql = "select count(*) as totalRecord from booking where customer_id = ?";
+        try (Connection connection = new DatabaseConnection().getConnection();
+             PreparedStatement statement = connection.prepareStatement(getTotalRecordSql)) {
+            statement.setInt(1, Config.getUser().getId());
+            ResultSet resultSet = statement.executeQuery();
+            if (resultSet.next()) {
+                int totalRecord = resultSet.getInt("totalRecord");
+                return (int) Math.ceil((double) totalRecord / Config.ROW_PER_PAGE);
+            }
+        } catch (SQLException exception) {
+            System.out.printf("%s%s%s\n", Config.RED, "Đã xảy ra lỗi vui lòng thử lại", Config.RESET);
+        }
+        return 0;
+    }
+
+    @Override
+    public int getTotalPageListBestComputer() {
+        String getTotalRecordSql = "select count(*) as totalRecord from booking";
+        try (Connection connection = new DatabaseConnection().getConnection();
+             PreparedStatement statement = connection.prepareStatement(getTotalRecordSql)) {
+            ResultSet resultSet = statement.executeQuery();
+            if (resultSet.next()) {
+                int totalRecord = resultSet.getInt("totalRecord");
+                return (int) (Math.ceil((double) totalRecord / Config.ROW_PER_PAGE));
+            }
+        } catch (SQLException exception) {
+            System.out.printf("%s%s%s\n", Config.RED, "Đã xảy ra lỗi vui lòng thử lại", Config.RESET);
+        }
+        return 0;
+    }
+
+    private ComputerStatistics mapToComputerStatistics(ResultSet resultSet) throws SQLException {
+        int computerId = resultSet.getInt("computer_id");
+        String name = resultSet.getString("name");
+        int totalBooking = resultSet.getInt("total_booking");
+        double totalAmount = resultSet.getDouble("total_revenue");
+        return new ComputerStatistics(computerId, name, totalBooking, totalAmount);
+    }
+
+    @Override
+    public List<ComputerStatistics> getListBestComputer(int currentPage) {
+        List<ComputerStatistics> computerStatisticsList = new ArrayList<>();
+        String sql = "select c.computer_id, c.name, count(b.computer_id) as total_booking, sum(b.total_amount) as total_revenue " +
+                "from computers c " +
+                "join booking b on c.computer_id = b.computer_id " +
+                "group by c.computer_id " +
+                "limit ? offset ?;";
+        try (Connection connection = new DatabaseConnection().getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setInt(1, Config.ROW_PER_PAGE);
+            statement.setInt(2, (currentPage - 1) * Config.ROW_PER_PAGE);
+            ResultSet resultSet = statement.executeQuery();
+            while (resultSet.next()) {
+                ComputerStatistics computerStatistics = mapToComputerStatistics(resultSet);
+                computerStatisticsList.add(computerStatistics);
+            }
+        } catch (SQLException exception) {
+            System.out.printf("%s%s%s\n", Config.RED, "Đã xảy ra lỗi vui lòng thử lại", Config.RESET);
+        }
+        return computerStatisticsList;
+    }
+
+    @Override
+    public double getRevenue() {
+        String sql = "select sum(total_amount) as totalAmount from booking";
+        try (Connection connection = new DatabaseConnection().getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+            ResultSet resultSet = statement.executeQuery();
+            if (resultSet.next()) {
+                return resultSet.getDouble("totalAmount");
+            }
+        } catch (SQLException exception) {
+            System.out.printf("%s%s%s\n", Config.RED, "Đã xảy ra lỗi vui lòng thử lại", Config.RESET);
+        }
+        return 0.0;
     }
 }

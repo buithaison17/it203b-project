@@ -1,6 +1,11 @@
 package services;
 
+import dao.BookingDAOImpl;
+import dao.OrderDAO;
+import dao.OrderDAOImpl;
 import dao.UserDAOImpl;
+import models.dto.ComputerStatistics;
+import models.dto.FoodDTO;
 import models.dto.UserDTO;
 import utils.*;
 
@@ -9,6 +14,8 @@ import java.util.List;
 public class AdminServiceImpl implements AdminService {
     private static AdminServiceImpl instance;
     private final UserDAOImpl userDAO = UserDAOImpl.getInstance();
+    private final OrderDAOImpl orderDAO = OrderDAOImpl.getInstance();
+    private final BookingDAOImpl bookingDAO = BookingDAOImpl.getInstance();
 
     private AdminServiceImpl() {
     }
@@ -151,8 +158,106 @@ public class AdminServiceImpl implements AdminService {
         }
     }
 
+    private void showBestFood() {
+        int totalPage = orderDAO.getTotalPageOfReport();
+        if (totalPage == 0) {
+            System.out.printf("%s%s%s\n", Config.RED, "Không có dữ liệu", Config.RESET);
+            return;
+        }
+        int currentPage = 1;
+        int choice;
+        do {
+            System.out.println("|-------------------------------------------------------------------|");
+            System.out.println("|                        DANH SÁCH MÓN ĂN BÁN CHẠY                  |");
+            System.out.println("|-------------------------------------------------------------------|");
+
+            System.out.printf("| %-6s | %-20s | %-15s | %-15s |\n",
+                    "ID", "Tên món ăn", "Số lượng đặt", "Tổng tiền");
+            System.out.println("|-------------------------------------------------------------------|");
+            List<FoodDTO> foodDTOS = orderDAO.viewListBestFood(currentPage);
+            foodDTOS.forEach(System.out::println);
+            System.out.println("|-------------------------------------------------------------------|");
+            choice = InputMethod.getIntegerPositive("[1].Trang trước\n[2].Trang sau\n[3].Thoát");
+            if (choice == 1) {
+                currentPage = currentPage > 1 ? currentPage - 1 : currentPage;
+            } else if (choice == 2) {
+                currentPage = currentPage < totalPage ? currentPage + 1 : currentPage;
+            }
+        } while (choice != 3);
+    }
+
+    private void showBestComputer() {
+        int totalPage = bookingDAO.getTotalPageListBestComputer();
+        if (totalPage == 0) {
+            System.out.printf("%s%s%s\n", Config.RED, "Không có dữ liệu", Config.RESET);
+            return;
+        }
+        int currentPage = 1;
+        int choice;
+        do {
+            System.out.println("|------------------------------------------------------------------|");
+            System.out.println("|                 DANH SÁCH MÁY TÍNH ĐƯỢC ĐẶT NHIỀU NHẤT           |");
+            System.out.println("|------------------------------------------------------------------|");
+
+            System.out.printf("| %-8s | %-20s | %-12s | %-15s |\n",
+                    "ID", "Tên máy tính", "Số lượng đặt", "Tổng tiền");
+            System.out.println("|------------------------------------------------------------------|");
+            List<ComputerStatistics> computerStatisticsList = bookingDAO.getListBestComputer(currentPage);
+            computerStatisticsList.forEach(System.out::println);
+            System.out.println("|-----------------------------------------------------------------|");
+            choice = InputMethod.getIntegerPositive("[1].Trang trước\n[2].Trang sau\n[3].Thoát");
+            switch (choice) {
+                case 1:
+                    currentPage = currentPage > 1 ? currentPage - 1 : currentPage;
+                    break;
+                case 2:
+                    currentPage = currentPage < totalPage ? currentPage + 1 : currentPage;
+                    break;
+                case 0:
+                    break;
+                default:
+                    break;
+            }
+        } while (choice != 3);
+    }
+
+    private void showRevenue() {
+        double revenueBooking = bookingDAO.getRevenue();
+        double revenueOrder = orderDAO.getRevenue();
+        System.out.println("|------------------------------------------------|");
+        System.out.println("|                     DOANH THU                  |");
+        System.out.println("|------------------------------------------------|");
+        System.out.printf("| %-28s | %-15s |\n", "Loại dịch vụ", "Doanh thu");
+        System.out.println("|------------------------------------------------|");
+        System.out.printf("| %-28s | %15s |\n", "Đặt máy tính", "$" + String.format("%,.2f", revenueBooking));
+        System.out.printf("| %-28s | %15s |\n", "Đặt món ăn", "$" + String.format("%,.2f", revenueOrder));
+        System.out.println("|---------------------------------------------- -|");
+    }
+
     @Override
     public void generateUserReport() {
-
+        int choice;
+        do {
+            System.out.println("1. Xếp hàng món ăn bán chạy");
+            System.out.println("2. Xếp hàng máy tính được đặt nhiều nhất");
+            System.out.println("3. Xem doanh thu");
+            System.out.println("0. Thoát");
+            choice = InputMethod.getIntegerPositive("Nhập chức năng: ");
+            switch (choice) {
+                case 1:
+                    showBestFood();
+                    break;
+                case 2:
+                    showBestComputer();
+                    break;
+                case 3:
+                    showRevenue();
+                    break;
+                case 0:
+                    break;
+                default:
+                    break;
+            }
+        } while (choice != 0);
     }
 }

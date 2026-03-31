@@ -29,8 +29,7 @@ public class AdminMenu {
             System.out.println("15. Xóa món ăn");
             System.out.println("16. Cập nhật thông tin món ăn");
             System.out.println("17. Cập nhật tồn kho");
-            System.out.println("18. Xem toàn bộ đơn hàng của hệ thống");
-            System.out.println("19. Báo cáo thống kê");
+            System.out.println("18. Báo cáo thống kê");
             System.out.println("0. Thoát");
             choice = InputMethod.getIntegerPositive("Nhập chức năng: ");
             switch (choice) {
@@ -84,6 +83,9 @@ public class AdminMenu {
                     break;
                 case 17:
                     foodService.updateStock();
+                    break;
+                case 18:
+                    adminService.generateUserReport();
                     break;
                 default:
                     break;

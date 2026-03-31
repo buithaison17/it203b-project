@@ -1,8 +1,12 @@
 package services;
 
 import at.favre.lib.crypto.bcrypt.BCrypt;
+import dao.BookingDAOImpl;
+import dao.OrderDAOImpl;
 import dao.UserDAOImpl;
 import enums.UserRole;
+import models.dto.BookingDTO;
+import models.dto.OrderDTO;
 import models.dto.UserDTO;
 import models.entity.User;
 import presentation.AdminMenu;
@@ -13,9 +17,13 @@ import utils.HashUtil;
 import utils.InputMethod;
 import utils.Validate;
 
+import java.util.List;
+
 public class UserServiceImpl implements UserService {
     private static UserServiceImpl instance;
     private final UserDAOImpl userDAO = UserDAOImpl.getInstance();
+    private final BookingDAOImpl bookingDAO = BookingDAOImpl.getInstance();
+    private final OrderDAOImpl orderDAO = OrderDAOImpl.getInstance();
 
     private UserServiceImpl() {
     }
@@ -203,5 +211,62 @@ public class UserServiceImpl implements UserService {
         System.out.printf("| %-7s | %-15s | %-20s | %-10s |\n", "ID", "Họ tên", "Email", "Số dư");
         System.out.println(user.toStringNotCreatedAtAndRole());
         System.out.println("-----------------------------------------------------------------");
+    }
+
+    @Override
+    public void showHistoryBooking() {
+        int totalPage = bookingDAO.getTotalPageOfUser();
+        if (totalPage == 0) {
+            System.out.printf("%s%s%s\n", Config.RED, "Bạn chưa đặt máy nào", Config.RESET);
+            return;
+        }
+        int currentPage = 1;
+        int choice;
+        do {
+            System.out.println("|--------------------------------------------------------------------------------------------------------|");
+            System.out.println("|                                      LỊCH SỬ ĐẶT MÁY                                                   |");
+            System.out.println("|--------------------------------------------------------------------------------------------------------|");
+            System.out.printf("| %-6s | %-10s | %-10s | %-16s | %-16s | %-15s | %-10s |\n",
+                    "ID", "Khách hàng", "Tên máy", "Ngày đặt", "Hoàn thành", "Tổng tiền", "Trạng thái");
+
+            System.out.println("|--------------------------------------------------------------------------------------------------------|");
+            List<BookingDTO> bookings = bookingDAO.viewListBookingOfUser(currentPage);
+            bookings.forEach(booking -> System.out.print(booking.toStringNotCreatedAt()));
+            System.out.println("|--------------------------------------------------------------------------------------------------------|");
+            choice = InputMethod.getIntegerPositive("[1].Trang trước\n[2].Trang sau\n[3].Thoát");
+            if (choice == 1) {
+                currentPage = currentPage > 1 ? currentPage - 1 : currentPage;
+            } else if (choice == 2) {
+                currentPage = currentPage < totalPage ? currentPage + 1 : currentPage;
+            }
+        } while (choice != 3);
+    }
+
+    @Override
+    public void showHistoryOrder() {
+        int totalPage = orderDAO.getTotalPageOfUser();
+        if (totalPage == 0) {
+            System.out.printf("%s%s%s\n", Config.RED, "Bạn chưa đặt máy nào", Config.RESET);
+            return;
+        }
+        int currentPage = 1;
+        int choice;
+        do {
+            System.out.println("|-----------------------------------------------------------------------------------|");
+            System.out.println("|                                      LỊCH SỬ ĐẶT ĐỒ ĂN                            |");
+            System.out.println("|-----------------------------------------------------------------------------------|");
+            System.out.printf("| %-6s | %-20s | %-12s | %-12s | %-19s |\n",
+                    "ID", "Khách hàng", "Tổng tiền", "Trạng thái", "Ngày đặt");
+            System.out.println("|-----------------------------------------------------------------------------------|");
+            List<OrderDTO> orders = orderDAO.viewListOrderOfUser(currentPage);
+            orders.forEach(order -> System.out.print(order.toString()));
+            System.out.println("|-----------------------------------------------------------------------------------|");
+            choice = InputMethod.getIntegerPositive("[1].Trang trước\n[2].Trang sau\n[3].Thoát");
+            if (choice == 1) {
+                currentPage = currentPage > 1 ? currentPage - 1 : currentPage;
+            } else if (choice == 2) {
+                currentPage = currentPage < totalPage ? currentPage + 1 : currentPage;
+            }
+        } while (choice != 3);
     }
 }

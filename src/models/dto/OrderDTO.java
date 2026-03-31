@@ -62,7 +62,12 @@ public class OrderDTO {
 
     @Override
     public String toString() {
-        return String.format("| %-8d | %-8d | %-10.2f | %-10s | %-15s |%n",
-                id, customerName, totalPrice, status, FormatDate.formatDateTime(createdAt));
+        return String.format("| %-6d | %-20s | %-12.2f | %-12s | %-19s |",
+                id,
+                customerName,
+                totalPrice,
+                status,
+                FormatDate.formatDateTime(createdAt)
+        );
     }
 }

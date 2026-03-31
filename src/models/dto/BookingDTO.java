@@ -92,7 +92,10 @@ public class BookingDTO {
 
     @Override
     public String toString() {
-        return String.format("| %-6d | %-10s | %-10s | %-13s | %-13s | %-10.2f | %-10s | %-15s |%n",
-                id, customerName, computerName, startTime.toString(), endTime.toString(), totalPrice, status.toString(), FormatDate.formatDateTime(createdAt));
+        return String.format("| %-6d | %-10s | %-10s | %-13s | %-13s | %-15.2f | %-10s | %-15s |%n", id, customerName, computerName, startTime.toString(), endTime.toString(), totalPrice, status.toString(), FormatDate.formatDateTime(createdAt));
+    }
+
+    public String toStringNotCreatedAt() {
+        return String.format("| %-6d | %-10s | %-10s | %-13s | %-13s | %-15.2f | %-10s |%n", id, customerName, computerName, FormatDate.formatDateTime(startTime), FormatDate.formatDateTime(endTime), totalPrice, status.toString());
     }
 }

@@ -1,6 +1,7 @@
 package dao;
 
 import enums.OrderStatus;
+import models.dto.FoodDTO;
 import models.dto.OrderDTO;
 import models.entity.Food;
 import models.entity.Order;
@@ -191,5 +192,105 @@ public class OrderDAOImpl implements OrderDAO {
         String status = resultSet.getString("status");
         LocalDateTime createdAt = resultSet.getTimestamp("created_at").toLocalDateTime();
         return new Order(orderId, customerId, OrderStatus.valueOf(status.toUpperCase()), totalPrice, createdAt);
+    }
+
+    @Override
+    public int getTotalPageOfUser() {
+        String getTotalRecordSql = "select count(*) as totalRecord from orders where customer_id = ?";
+        try (Connection connection = new DatabaseConnection().getConnection();
+             PreparedStatement statement = connection.prepareStatement(getTotalRecordSql)) {
+            statement.setInt(1, Config.getUser().getId());
+            ResultSet resultSet = statement.executeQuery();
+            if (resultSet.next()) {
+                int totalRecord = resultSet.getInt("totalRecord");
+                return (int) Math.ceil((double) totalRecord / Config.ROW_PER_PAGE);
+            }
+        } catch (SQLException exception) {
+            System.out.printf("%s%s%s\n", Config.RED, "Đã xảy ra lỗi vui lòng thử lại", Config.RESET);
+        }
+        return 0;
+    }
+
+    @Override
+    public List<OrderDTO> viewListOrderOfUser(int currentPage) {
+        List<OrderDTO> orderDTOS = new ArrayList<>();
+        String sql = "select order_id, customer_id, total_amount, status, created_at from orders where customer_id = ? limit ? offset ?";
+        try (Connection connection = new DatabaseConnection().getConnection();
+             PreparedStatement stmViewListOrder = connection.prepareStatement(sql)) {
+            stmViewListOrder.setInt(1, Config.getUser().getId());
+            stmViewListOrder.setInt(2, Config.ROW_PER_PAGE);
+            stmViewListOrder.setInt(3, (currentPage - 1) * Config.ROW_PER_PAGE);
+            ResultSet resultSet = stmViewListOrder.executeQuery();
+            while (resultSet.next()) {
+                OrderDTO orderDTO = mapToOrderDTO(resultSet);
+                orderDTOS.add(orderDTO);
+            }
+        } catch (SQLException e) {
+            System.out.printf("%s%s%s\n", Config.RED, "Đã xảy ra lỗi vui lòng thử lại", Config.RESET);
+        }
+        return orderDTOS;
+    }
+
+    private FoodDTO mapToFoodDTO(ResultSet resultSet) throws SQLException {
+        int id = resultSet.getInt("food_id");
+        String name = resultSet.getString("name");
+        int totalQuantitySell = resultSet.getInt("totalQuantitySell");
+        double totalAmount = resultSet.getDouble("totalAmount");
+        return new FoodDTO(id, name, totalQuantitySell, totalAmount);
+    }
+
+    @Override
+    public int getTotalPageOfReport() {
+        String getTotalRecordSql = "select count(*) as totalRecord from orders";
+        try (Connection connection = new DatabaseConnection().getConnection();
+             PreparedStatement statement = connection.prepareStatement(getTotalRecordSql)) {
+            ResultSet resultSet = statement.executeQuery();
+            if (resultSet.next()) {
+                int totalRecord = resultSet.getInt("totalRecord");
+                return (int) Math.ceil((double) totalRecord / Config.ROW_PER_PAGE);
+            }
+        } catch (SQLException exception) {
+            System.out.printf("%s%s%s\n", Config.RED, "Đã xảy ra lỗi vui lòng thử lại", Config.RESET);
+        }
+        return 0;
+    }
+
+    @Override
+    public List<FoodDTO> viewListBestFood(int currentPage) {
+        List<FoodDTO> foods = new ArrayList<>();
+        String sql = "select f.food_id, f.name, sum(oi.quantity) as totalQuantitySell, sum(oi.quantity * f.price) as totalAmount " +
+                "from foods f " +
+                "join order_items oi on f.food_id = oi.food_id " +
+                "group by f.food_id " +
+                "order by totalAmount desc " +
+                "limit ? offset ?";
+        try (Connection connection = new DatabaseConnection().getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setInt(1, Config.ROW_PER_PAGE);
+            statement.setInt(2, (currentPage - 1) * Config.ROW_PER_PAGE);
+            ResultSet resultSet = statement.executeQuery();
+            while (resultSet.next()) {
+                FoodDTO food = mapToFoodDTO(resultSet);
+                foods.add(food);
+            }
+        } catch (SQLException e) {
+            System.out.printf("%s%s%s\n", Config.RED, "Đã xảy ra lỗi vui lòng thử lại", Config.RESET);
+        }
+        return foods;
+    }
+
+    @Override
+    public double getRevenue() {
+        String sql = "select sum(total_amount) as totalAmount from orders";
+        try (Connection connection = new DatabaseConnection().getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+            ResultSet resultSet = statement.executeQuery();
+            if (resultSet.next()) {
+                return resultSet.getDouble("totalAmount");
+            }
+        } catch (SQLException exception) {
+            System.out.printf("%s%s%s\n", Config.RED, "Đã xảy ra lỗi vui lòng thử lại", Config.RESET);
+        }
+        return 0.0;
     }
 }
